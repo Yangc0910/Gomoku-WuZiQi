@@ -49,6 +49,7 @@
 		00000000000000000000006D /* RuleEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000006C /* RuleEngineTests.swift */; };
 		00000000000000000000006F /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000006E /* PersistenceTests.swift */; };
 		000000000000000000000070 /* SkillGomokuUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000071 /* SkillGomokuUITests.swift */; };
+		00000000000000000000007D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000007E /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +101,7 @@
 		00000000000000000000006C /* RuleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillGomokuTests/GameEngineTests/RuleEngineTests.swift; sourceTree = "<group>"; };
 		00000000000000000000006E /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillGomokuTests/PersistenceTests/PersistenceTests.swift; sourceTree = "<group>"; };
 		000000000000000000000071 /* SkillGomokuUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillGomokuUITests/SkillGomokuUITests.swift; sourceTree = "<group>"; };
+		00000000000000000000007E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = SkillGomoku/Resources/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		00000000000000000000000F /* SkillGomoku.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkillGomoku.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000000000000000000000010 /* SkillGomokuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkillGomokuTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		000000000000000000000073 /* SkillGomokuUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkillGomokuUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -154,6 +156,7 @@
 			000000000000000000000064 /* AvatarService.swift */,
 			000000000000000000000066 /* CameraService.swift */,
 			000000000000000000000068 /* Info.plist */,
+			00000000000000000000007E /* PrivacyInfo.xcprivacy */,
 			00000000000000000000006A /* Assets.xcassets */,
 		); name = SkillGomoku; sourceTree = "<group>"; };
 		000000000000000000000008 /* SkillGomokuTests */ = {isa = PBXGroup; children = (
@@ -178,6 +181,7 @@
 /* Begin PBXResourcesBuildPhase section */
 		00000000000000000000000A /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
 			00000000000000000000006B /* Assets.xcassets in Resources */,
+			00000000000000000000007D /* PrivacyInfo.xcprivacy in Resources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 		00000000000000000000000D /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
 		000000000000000000000077 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
