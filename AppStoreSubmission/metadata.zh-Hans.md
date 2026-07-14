@@ -2,7 +2,7 @@
 
 ## App 信息
 
-- App 名称：技能五子棋
+- App 名称：技能五子棋：本机双人对战
 - 副标题：本机双人五子棋对战
 - 类别建议：Games / Board
 - 年龄分级建议：4+
@@ -43,6 +43,7 @@
 ## 截图映射
 
 - iPhone 6.9 英寸：`AppStoreAssets/iphone-6.9/01-classic-match.png`
+- iPhone 6.5 英寸：`AppStoreAssets/iphone-6.5/01-classic-match.png`
 - iPad 13 英寸：`AppStoreAssets/ipad-13/01-classic-match.png`
 
 ## App Privacy 建议

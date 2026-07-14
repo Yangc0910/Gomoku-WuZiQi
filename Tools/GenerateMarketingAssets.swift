@@ -270,22 +270,32 @@ private func drawIPadMockup(in rect: CGRect) {
     drawBoard(in: board, gridCount: 11)
 }
 
-private func makeIPhoneStoreImage() -> NSImage {
-    render(width: 1320, height: 2868) { rect in
+private func drawIPhoneStoreImage(in rect: CGRect) {
         fillGradient(rect, colors: [Palette.ink, NSColor(hex: 0x12233B), NSColor(hex: 0x103A3B)], angle: -55)
         text("技能五子棋", in: CGRect(x: 92, y: 170, width: 1136, height: 118), size: 82, weight: .heavy, color: Palette.text, alignment: .center)
-        text("本机双人对弈，经典开局更稳。", in: CGRect(x: 124, y: 292, width: 1072, height: 58), size: 34, weight: .medium, color: Palette.muted, alignment: .center)
+        text("本机双人对弈，经典与技能模式。", in: CGRect(x: 124, y: 292, width: 1072, height: 58), size: 34, weight: .medium, color: Palette.muted, alignment: .center)
         drawPhoneMockup(in: CGRect(x: 280, y: 468, width: 760, height: 1570))
 
         let chipY: CGFloat = 2200
-        for (index, label) in ["头像档案", "自动保存", "胜负统计"].enumerated() {
+        for (index, label) in ["技能卡牌", "自动保存", "胜负统计"].enumerated() {
             let x = 112 + CGFloat(index) * 384
             roundedRect(CGRect(x: x, y: chipY, width: 328, height: 86), radius: 28, color: NSColor.white.withAlphaComponent(0.11))
             strokedRoundedRect(CGRect(x: x, y: chipY, width: 328, height: 86), radius: 28, color: NSColor.white.withAlphaComponent(0.16), width: 2)
             text(label, in: CGRect(x: x, y: chipY + 24, width: 328, height: 36), size: 28, weight: .semibold, color: Palette.text, alignment: .center)
         }
 
-        text("经典稳定开局", in: CGRect(x: 96, y: 2590, width: 1128, height: 42), size: 24, weight: .medium, color: Palette.muted, alignment: .center)
+        text("离线、本机、无账号", in: CGRect(x: 96, y: 2590, width: 1128, height: 42), size: 24, weight: .medium, color: Palette.muted, alignment: .center)
+}
+
+private func makeIPhoneStoreImage(width: Int, height: Int) -> NSImage {
+    let baseSize = CGSize(width: 1320, height: 2868)
+    return render(width: width, height: height) { rect in
+        NSGraphicsContext.saveGraphicsState()
+        let transform = NSAffineTransform()
+        transform.scaleX(by: rect.width / baseSize.width, yBy: rect.height / baseSize.height)
+        transform.concat()
+        drawIPhoneStoreImage(in: CGRect(origin: .zero, size: baseSize))
+        NSGraphicsContext.restoreGraphicsState()
     }
 }
 
@@ -307,7 +317,8 @@ private func makeIPadStoreImage() -> NSImage {
 
 let outputs: [(NSImage, String)] = [
     (makeAppIcon(), "SkillGomoku/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png"),
-    (makeIPhoneStoreImage(), "AppStoreAssets/iphone-6.9/01-classic-match.png"),
+    (makeIPhoneStoreImage(width: 1320, height: 2868), "AppStoreAssets/iphone-6.9/01-classic-match.png"),
+    (makeIPhoneStoreImage(width: 1284, height: 2778), "AppStoreAssets/iphone-6.5/01-classic-match.png"),
     (makeIPadStoreImage(), "AppStoreAssets/ipad-13/01-classic-match.png")
 ]
 
