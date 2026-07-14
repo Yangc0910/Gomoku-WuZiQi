@@ -42,9 +42,19 @@
 
 ## 截图映射
 
-- iPhone 6.9 英寸：`AppStoreAssets/iphone-6.9/01-classic-match.png`
-- iPhone 6.5 英寸：`AppStoreAssets/iphone-6.5/01-classic-match.png`
-- iPad 13 英寸：`AppStoreAssets/ipad-13/01-classic-match.png`
+- App Icon 预览：`AppStoreAssets/app-icon/app-icon-1024.png`
+- iPhone 6.5 英寸：
+  - `AppStoreAssets/iphone-6.5/01-core-gameplay.png`
+  - `AppStoreAssets/iphone-6.5/02-skill-mode.png`
+  - `AppStoreAssets/iphone-6.5/03-player-profiles.png`
+- iPhone 6.9 英寸：
+  - `AppStoreAssets/iphone-6.9/01-core-gameplay.png`
+  - `AppStoreAssets/iphone-6.9/02-skill-mode.png`
+  - `AppStoreAssets/iphone-6.9/03-player-profiles.png`
+- iPad 13 英寸：
+  - `AppStoreAssets/ipad-13/01-core-gameplay.png`
+  - `AppStoreAssets/ipad-13/02-skill-mode.png`
+  - `AppStoreAssets/ipad-13/03-player-profiles.png`
 
 ## App Privacy 建议
 
