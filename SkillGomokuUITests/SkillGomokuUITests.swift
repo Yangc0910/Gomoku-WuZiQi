@@ -30,8 +30,7 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.buttons["继续"].waitForExistence(timeout: 5))
         app.buttons["继续"].tap()
 
-        XCTAssertTrue(app.buttons["开始对局"].waitForExistence(timeout: 5))
-        app.buttons["开始对局"].tap()
+        tapStartMatchButton(app)
 
         XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
         tapBoard(app, row: 7, column: 7)
@@ -57,12 +56,48 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["五子连珠"].exists)
     }
 
+    func testStandardSkillModeCanUseSandstorm() {
+        let app = launchApp()
+
+        app.buttons["开始游戏"].tap()
+        XCTAssertTrue(app.staticTexts["技能五子棋"].waitForExistence(timeout: 5))
+        app.staticTexts["技能五子棋"].tap()
+
+        XCTAssertTrue(app.buttons["继续"].waitForExistence(timeout: 5))
+        app.buttons["继续"].tap()
+
+        tapStartMatchButton(app)
+
+        XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
+        tapBoard(app, row: 7, column: 7)
+        XCTAssertTrue(app.staticTexts["第 2 回合"].waitForExistence(timeout: 5))
+        tapBoard(app, row: 8, column: 8)
+        XCTAssertTrue(app.staticTexts["第 3 回合"].waitForExistence(timeout: 5))
+
+        let sandstorm = app.buttons["skill-playerOne-sandstorm"]
+        XCTAssertTrue(sandstorm.waitForExistence(timeout: 5))
+        XCTAssertTrue(sandstorm.isEnabled)
+        sandstorm.tap()
+        XCTAssertTrue(app.staticTexts["在棋盘上选择目标"].waitForExistence(timeout: 5))
+        tapBoard(app, row: 8, column: 8)
+
+        XCTAssertTrue(app.staticTexts["第 4 回合"].waitForExistence(timeout: 5))
+    }
+
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["UITEST_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["UITEST_FORCE_CAMERA_UNAVAILABLE"] = "1"
         app.launch()
         return app
+    }
+
+    private func tapStartMatchButton(_ app: XCUIApplication) {
+        if !app.buttons["开始对局"].waitForExistence(timeout: 2) {
+            app.swipeUp()
+        }
+        XCTAssertTrue(app.buttons["开始对局"].waitForExistence(timeout: 5))
+        app.buttons["开始对局"].tap()
     }
 
     private func tapBoard(_ app: XCUIApplication, row: Int, column: Int, boardSize: CGFloat = 15) {

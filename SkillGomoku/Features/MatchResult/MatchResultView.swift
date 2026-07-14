@@ -60,11 +60,13 @@ struct MatchResultView: View {
     private var reasonText: String {
         switch status {
         case .won(_, .fiveInRow): "五子连珠"
+        case .won(_, .skillResolved): "技能结算后获胜"
         case .won(_, .boardFull): "棋盘已满"
         case .won(_, .simultaneousFive): "双方同时形成五连"
         case .draw(.boardFull): "棋盘已满"
         case .draw(.simultaneousFive): "双方同时形成五连"
         case .draw(.fiveInRow): "五子连珠"
+        case .draw(.skillResolved): "技能结算后平局"
         case .inProgress: "继续完成当前对局"
         }
     }

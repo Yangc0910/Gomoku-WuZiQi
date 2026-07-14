@@ -42,4 +42,43 @@ struct GameState: Codable, Equatable, Sendable {
     static func newClassic(firstPlayer: PlayerSide) -> GameState {
         GameState(currentPlayer: firstPlayer, firstPlayer: firstPlayer, mode: .classic)
     }
+
+    static func newMatch(
+        mode: GameMode,
+        firstPlayer: PlayerSide,
+        skillLoadout: [SkillIdentifier] = SkillIdentifier.defaultAdvancedLoadout,
+        randomSeed: UInt64 = 0x5eed
+    ) -> GameState {
+        let identifiers: [SkillIdentifier]
+        switch mode {
+        case .classic:
+            identifiers = []
+        case .standardSkills:
+            identifiers = SkillIdentifier.standardLoadout
+        case .advancedSkills:
+            identifiers = Array(skillLoadout.prefix(3))
+        }
+
+        let skillStates: [PlayerSide: [SkillState]]
+        if identifiers.isEmpty {
+            skillStates = [:]
+        } else {
+            skillStates = [
+                .playerOne: SkillState.loadout(for: identifiers),
+                .playerTwo: SkillState.loadout(for: identifiers)
+            ]
+        }
+
+        return GameState(
+            currentPlayer: firstPlayer,
+            firstPlayer: firstPlayer,
+            mode: mode,
+            randomState: randomSeed,
+            skillStates: skillStates
+        )
+    }
+
+    func skillState(for skill: SkillIdentifier, side: PlayerSide) -> SkillState? {
+        skillStates[side]?.first { $0.id == skill }
+    }
 }

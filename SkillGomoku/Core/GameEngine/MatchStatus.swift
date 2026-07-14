@@ -2,6 +2,7 @@ import Foundation
 
 enum MatchResultReason: String, Codable, Sendable {
     case fiveInRow
+    case skillResolved
     case boardFull
     case simultaneousFive
 }

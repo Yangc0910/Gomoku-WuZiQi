@@ -18,12 +18,16 @@ enum GameMode: String, Codable, CaseIterable, Identifiable, Sendable {
     var subtitle: String {
         switch self {
         case .classic: "本机双人，纯规则对战"
-        case .standardSkills: "技能系统预留，后续开放"
-        case .advancedSkills: "高级技能组合，后续开放"
+        case .standardSkills: "五张固定技能卡，节奏直接"
+        case .advancedSkills: "从九张技能中选择三张组合"
         }
     }
 
-    var isAvailableInPhaseOne: Bool {
-        self == .classic
+    var symbolName: String {
+        switch self {
+        case .classic: "circle.grid.cross.fill"
+        case .standardSkills: "sparkles"
+        case .advancedSkills: "square.stack.3d.up.fill"
+        }
     }
 }

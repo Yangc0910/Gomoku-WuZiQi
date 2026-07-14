@@ -30,8 +30,8 @@ struct SettingsView: View {
             }
 
             Section("版本") {
-                LabeledContent("当前阶段", value: "Phase 0 + Phase 1")
-                LabeledContent("可用模式", value: "经典五子棋")
+                LabeledContent("当前版本", value: "V1")
+                LabeledContent("可用模式", value: "经典 / 技能 / 高阶技能")
             }
         }
         .navigationTitle("设置")

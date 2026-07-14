@@ -39,9 +39,48 @@ struct Board: Codable, Equatable, Sendable {
         cells[index(for: coordinate)] = stone
     }
 
+    @discardableResult
+    mutating func removeStone(at coordinate: Coordinate) throws -> Stone {
+        guard contains(coordinate) else { throw RuleEngineError.coordinateOutOfBounds }
+        guard let stone = self[coordinate] else { throw RuleEngineError.positionEmpty }
+        cells[index(for: coordinate)] = nil
+        return stone
+    }
+
+    mutating func setStone(_ stone: Stone?, at coordinate: Coordinate) throws {
+        guard contains(coordinate) else { throw RuleEngineError.coordinateOutOfBounds }
+        cells[index(for: coordinate)] = stone
+    }
+
+    @discardableResult
+    mutating func moveStone(from origin: Coordinate, to destination: Coordinate) throws -> Stone {
+        guard contains(origin), contains(destination) else { throw RuleEngineError.coordinateOutOfBounds }
+        guard isEmpty(at: destination) else { throw RuleEngineError.positionOccupied }
+        let stone = try removeStone(at: origin)
+        cells[index(for: destination)] = stone
+        return stone
+    }
+
+    mutating func removeAllStones() -> [(coordinate: Coordinate, stone: Stone)] {
+        var removed: [(coordinate: Coordinate, stone: Stone)] = []
+        for offset in cells.indices {
+            guard let stone = cells[offset] else { continue }
+            cells[offset] = nil
+            removed.append((Coordinate(row: offset / size, column: offset % size), stone))
+        }
+        return removed
+    }
+
     func coordinates(for side: PlayerSide) -> [Coordinate] {
         cells.enumerated().compactMap { offset, stone in
             guard stone?.side == side else { return nil }
+            return Coordinate(row: offset / size, column: offset % size)
+        }
+    }
+
+    var occupiedCoordinates: [Coordinate] {
+        cells.enumerated().compactMap { offset, stone in
+            guard stone != nil else { return nil }
             return Coordinate(row: offset / size, column: offset % size)
         }
     }

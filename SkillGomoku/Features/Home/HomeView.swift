@@ -5,6 +5,7 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \PlayerProfileEntity.lastUsedAt, order: .reverse) private var players: [PlayerProfileEntity]
     @Query(filter: #Predicate<PersistedMatchEntity> { $0.isFinished == false }, sort: \.updatedAt, order: .reverse) private var unfinishedMatches: [PersistedMatchEntity]
+    @Query(sort: \MatchRecordEntity.endedAt, order: .reverse) private var records: [MatchRecordEntity]
     @State private var setupError: String?
 
     var body: some View {
@@ -29,7 +30,7 @@ struct HomeView: View {
                                 .foregroundStyle(AppColor.textPrimary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.72)
-                            Text("本机双人对弈，从经典五子棋开始。")
+                            Text("经典与技能模式，一台设备即可开局。")
                                 .font(.title3)
                                 .foregroundStyle(AppColor.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -70,6 +71,14 @@ struct HomeView: View {
                         .buttonStyle(HomeButtonStyle(color: AppColor.accent))
 
                         NavigationLink {
+                            MatchRecordListView(records: records, players: players)
+                        } label: {
+                            Label("对战记录", systemImage: "list.bullet.rectangle.fill")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(HomeButtonStyle(color: AppColor.success.opacity(0.86)))
+
+                        NavigationLink {
                             SettingsView()
                         } label: {
                             Label("设置", systemImage: "gearshape.fill")
@@ -108,7 +117,7 @@ struct HomeView: View {
     }
 
     private var homeSnapshot: some View {
-        HStack(spacing: AppSpacing.sm) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: AppSpacing.sm) {
             HomeMetricPill(title: "\(players.count)", subtitle: "玩家", systemImage: "person.2.fill", color: AppColor.playerOne)
             HomeMetricPill(
                 title: unfinishedMatches.isEmpty ? "0" : "\(unfinishedMatches.count)",
@@ -117,6 +126,7 @@ struct HomeView: View {
                 color: AppColor.success
             )
             HomeMetricPill(title: "15x15", subtitle: "棋盘", systemImage: "circle.grid.cross.fill", color: AppColor.accent)
+            HomeMetricPill(title: "\(records.count)", subtitle: "记录", systemImage: "trophy.fill", color: AppColor.playerTwo)
         }
     }
 }
@@ -227,5 +237,82 @@ private struct HomeBrandMark: View {
         }
         .rotationEffect(.degrees(-4))
         .accessibilityHidden(true)
+    }
+}
+
+private struct MatchRecordListView: View {
+    let records: [MatchRecordEntity]
+    let players: [PlayerProfileEntity]
+
+    var body: some View {
+        ZStack {
+            AppColor.background.ignoresSafeArea()
+            if records.isEmpty {
+                ContentUnavailableView(
+                    "暂无对战记录",
+                    systemImage: "list.bullet.rectangle",
+                    description: Text("完成一局后会在这里显示胜负、模式和回合数。")
+                )
+                .foregroundStyle(AppColor.textSecondary)
+            } else {
+                List(records) { record in
+                    RecordRow(record: record, players: players)
+                        .listRowBackground(AppColor.surface)
+                }
+                .scrollContentBackground(.hidden)
+            }
+        }
+        .navigationTitle("对战记录")
+    }
+}
+
+private struct RecordRow: View {
+    let record: MatchRecordEntity
+    let players: [PlayerProfileEntity]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            HStack {
+                Text(modeTitle)
+                    .font(.headline)
+                    .foregroundStyle(AppColor.textPrimary)
+                Spacer()
+                Text(resultText)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(resultColor)
+            }
+
+            Text("\(playerName(record.playerOneID))  vs  \(playerName(record.playerTwoID))")
+                .font(.subheadline)
+                .foregroundStyle(AppColor.textSecondary)
+
+            HStack {
+                Label("\(record.turnCount) 回合", systemImage: "number")
+                Spacer()
+                Text(record.endedAt, format: .dateTime.month().day().hour().minute())
+            }
+            .font(.caption)
+            .foregroundStyle(AppColor.textSecondary)
+        }
+        .padding(.vertical, AppSpacing.xs)
+    }
+
+    private var modeTitle: String {
+        GameMode(rawValue: record.modeRawValue)?.title ?? "未知模式"
+    }
+
+    private var resultText: String {
+        if let winnerID = record.winnerID {
+            return "\(playerName(winnerID)) 获胜"
+        }
+        return "平局"
+    }
+
+    private var resultColor: Color {
+        record.winnerID == nil ? AppColor.textSecondary : AppColor.success
+    }
+
+    private func playerName(_ id: UUID) -> String {
+        players.first { $0.id == id }?.displayName ?? "玩家"
     }
 }

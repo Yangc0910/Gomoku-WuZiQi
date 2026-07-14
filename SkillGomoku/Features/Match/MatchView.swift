@@ -8,6 +8,8 @@ struct MatchView: View {
     let playerTwo: PlayerProfileEntity
     let existingMatch: PersistedMatchEntity?
     let initialState: GameState?
+    let soundEnabled: Bool
+    let hapticsEnabled: Bool
 
     @State private var viewModel: MatchViewModel?
     @State private var showingPause = false
@@ -16,12 +18,16 @@ struct MatchView: View {
         playerOne: PlayerProfileEntity,
         playerTwo: PlayerProfileEntity,
         existingMatch: PersistedMatchEntity?,
-        initialState: GameState? = nil
+        initialState: GameState? = nil,
+        soundEnabled: Bool = true,
+        hapticsEnabled: Bool = true
     ) {
         self.playerOne = playerOne
         self.playerTwo = playerTwo
         self.existingMatch = existingMatch
         self.initialState = initialState
+        self.soundEnabled = soundEnabled
+        self.hapticsEnabled = hapticsEnabled
     }
 
     var body: some View {
@@ -60,9 +66,23 @@ struct MatchView: View {
         }
         .confirmationDialog("暂停", isPresented: $showingPause, titleVisibility: .visible) {
             Button("保存当前对局") {
-                try? viewModel?.save()
+                _ = try? viewModel?.save()
             }
             Button("继续", role: .cancel) {}
+        }
+        .confirmationDialog(
+            viewModel?.pendingConfirmationSkill?.title ?? "确认技能",
+            isPresented: pendingSkillPresented,
+            titleVisibility: .visible
+        ) {
+            Button("使用技能") {
+                viewModel?.confirmPendingSkill()
+            }
+            Button("取消", role: .cancel) {
+                viewModel?.cancelSkillSelection()
+            }
+        } message: {
+            Text(viewModel?.pendingConfirmationSkill?.summary ?? "")
         }
         .sheet(isPresented: resultPresented) {
             if let status = viewModel?.finishedMatch {
@@ -79,24 +99,43 @@ struct MatchView: View {
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase != .active {
-                try? viewModel?.save()
+                _ = try? viewModel?.save()
             }
         }
     }
 
     private func iPadLayout(viewModel: MatchViewModel) -> some View {
         HStack(spacing: AppSpacing.lg) {
-            PlayerPanel(player: playerOne, side: .playerOne, state: viewModel.state)
+            PlayerPanel(
+                player: playerOne,
+                side: .playerOne,
+                state: viewModel.state,
+                selectedSkill: viewModel.selectedSkill
+            ) { skill in
+                viewModel.beginSkill(skill, side: .playerOne)
+            }
                 .frame(width: 220)
             VStack(spacing: AppSpacing.md) {
                 TurnBanner(state: viewModel.state, playerOne: playerOne, playerTwo: playerTwo)
-                GomokuBoardView(state: viewModel.state) { coordinate in
-                    viewModel.placeStone(at: coordinate, side: viewModel.state.currentPlayer)
+                GomokuBoardView(
+                    state: viewModel.state,
+                    highlightedCoordinates: viewModel.targetHighlights,
+                    selectedCoordinate: viewModel.selectedMoveOrigin,
+                    showsPlacementPreview: viewModel.selectedSkill == nil
+                ) { coordinate in
+                    viewModel.handleBoardTap(coordinate)
                 }
-                errorText(viewModel.errorMessage)
+                statusText(viewModel: viewModel)
             }
             .frame(maxWidth: 680)
-            PlayerPanel(player: playerTwo, side: .playerTwo, state: viewModel.state)
+            PlayerPanel(
+                player: playerTwo,
+                side: .playerTwo,
+                state: viewModel.state,
+                selectedSkill: viewModel.selectedSkill
+            ) { skill in
+                viewModel.beginSkill(skill, side: .playerTwo)
+            }
                 .frame(width: 220)
         }
         .padding(AppSpacing.lg)
@@ -106,15 +145,43 @@ struct MatchView: View {
         VStack(spacing: AppSpacing.md) {
             PlayerSummaryCard(player: playerTwo, side: .playerTwo, state: viewModel.state)
             TurnBanner(state: viewModel.state, playerOne: playerOne, playerTwo: playerTwo)
-            GomokuBoardView(state: viewModel.state) { coordinate in
-                viewModel.placeStone(at: coordinate, side: viewModel.state.currentPlayer)
+            GomokuBoardView(
+                state: viewModel.state,
+                highlightedCoordinates: viewModel.targetHighlights,
+                selectedCoordinate: viewModel.selectedMoveOrigin,
+                showsPlacementPreview: viewModel.selectedSkill == nil
+            ) { coordinate in
+                viewModel.handleBoardTap(coordinate)
             }
             .padding(.horizontal, AppSpacing.sm)
-            SkillReserveStrip()
+            SkillReserveStrip(
+                state: viewModel.state,
+                side: viewModel.state.currentPlayer,
+                selectedSkill: viewModel.selectedSkill,
+                compact: true
+            ) { skill in
+                viewModel.beginSkill(skill, side: viewModel.state.currentPlayer)
+            }
             PlayerSummaryCard(player: playerOne, side: .playerOne, state: viewModel.state)
-            errorText(viewModel.errorMessage)
+            statusText(viewModel: viewModel)
         }
         .padding(AppSpacing.md)
+    }
+
+    @ViewBuilder
+    private func statusText(viewModel: MatchViewModel) -> some View {
+        if let message = viewModel.errorMessage ?? viewModel.skillInstruction {
+            HStack(spacing: AppSpacing.sm) {
+                Image(systemName: viewModel.errorMessage == nil ? "scope" : "exclamationmark.triangle.fill")
+                Text(message)
+                    .lineLimit(2)
+            }
+            .font(.footnote)
+            .foregroundStyle(viewModel.errorMessage == nil ? AppColor.textSecondary : AppColor.playerTwo)
+            .frame(minHeight: 18)
+        } else {
+            errorText(nil)
+        }
     }
 
     private func errorText(_ message: String?) -> some View {
@@ -122,6 +189,16 @@ struct MatchView: View {
             .font(.footnote)
             .foregroundStyle(AppColor.playerTwo)
             .frame(minHeight: 18)
+    }
+
+    private var pendingSkillPresented: Binding<Bool> {
+        Binding {
+            viewModel?.pendingConfirmationSkill != nil
+        } set: { newValue in
+            if !newValue {
+                viewModel?.cancelSkillSelection()
+            }
+        }
     }
 
     private var resultPresented: Binding<Bool> {
@@ -149,7 +226,9 @@ struct MatchView: View {
             persistedMatchID: existingMatch?.id,
             modelContext: modelContext,
             playerOneID: playerOne.id,
-            playerTwoID: playerTwo.id
+            playerTwoID: playerTwo.id,
+            soundEnabled: soundEnabled,
+            hapticsEnabled: hapticsEnabled
         )
     }
 }

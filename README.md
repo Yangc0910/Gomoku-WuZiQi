@@ -24,12 +24,15 @@ The files in `docs/reference/` are layout references only. Do not copy their vis
 
 ## Current Status
 
-Phase 0 + Phase 1 foundation is in progress:
+V1 local App Store candidate is in progress:
 
 - Native SwiftUI project scaffold
 - Classic Gomoku engine
+- Standard Skill Gomoku with five fixed skills
+- Advanced Skill Gomoku with player-selected skill loadouts
 - Local player profiles and avatars
 - iPhone / iPad responsive match layout
 - SwiftData persistence for players and unfinished matches
 - Completed match records and local win/loss/draw stats
-- In-match undo, placement preview, and invalid-position feedback
+- In-match undo, placement preview, invalid-position feedback, sound, and haptics
+- App Store metadata, privacy text, review notes, icons, and screenshot assets

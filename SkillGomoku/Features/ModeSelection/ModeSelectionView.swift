@@ -11,26 +11,12 @@ struct ModeSelectionView: View {
                         .foregroundStyle(AppColor.textPrimary)
 
                     ForEach(GameMode.allCases) { mode in
-                        if mode.isAvailableInPhaseOne {
-                            NavigationLink {
-                                PlayerSelectionView(mode: mode)
-                            } label: {
-                                ModeCard(mode: mode)
-                            }
-                            .buttonStyle(.plain)
-                        } else {
+                        NavigationLink {
+                            PlayerSelectionView(mode: mode)
+                        } label: {
                             ModeCard(mode: mode)
-                                .overlay(alignment: .topTrailing) {
-                                    Text("Coming Soon")
-                                        .font(.caption.bold())
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 5)
-                                        .background(Capsule().fill(Color.white.opacity(0.12)))
-                                        .foregroundStyle(AppColor.textSecondary)
-                                        .padding()
-                                }
-                                .opacity(0.55)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(AppSpacing.lg)
@@ -45,11 +31,11 @@ private struct ModeCard: View {
     let mode: GameMode
 
     var body: some View {
-        GlassCard(isActive: mode.isAvailableInPhaseOne, accent: AppColor.playerOne) {
+        GlassCard(isActive: true, accent: AppColor.playerOne) {
             HStack(spacing: AppSpacing.md) {
-                Image(systemName: mode.isAvailableInPhaseOne ? "circle.grid.cross.fill" : "sparkles")
+                Image(systemName: mode.symbolName)
                     .font(.title)
-                    .foregroundStyle(mode.isAvailableInPhaseOne ? AppColor.playerOne : AppColor.textSecondary)
+                    .foregroundStyle(AppColor.playerOne)
                     .frame(width: 42, height: 42)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(mode.title)
@@ -60,7 +46,7 @@ private struct ModeCard: View {
                         .foregroundStyle(AppColor.textSecondary)
                 }
                 Spacer()
-                Image(systemName: mode.isAvailableInPhaseOne ? "chevron.right" : "lock.fill")
+                Image(systemName: "chevron.right")
                     .foregroundStyle(AppColor.textSecondary)
             }
         }
