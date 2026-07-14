@@ -48,10 +48,12 @@
 		00000000000000000000006B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000006A /* Assets.xcassets */; };
 		00000000000000000000006D /* RuleEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000006C /* RuleEngineTests.swift */; };
 		00000000000000000000006F /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000006E /* PersistenceTests.swift */; };
+		000000000000000000000070 /* SkillGomokuUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000071 /* SkillGomokuUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		000000000000000000000012 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = 000000000000000000000004 /* Project object */; proxyType = 1; remoteGlobalIDString = 000000000000000000000002; remoteInfo = SkillGomoku; };
+		000000000000000000000072 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = 000000000000000000000004 /* Project object */; proxyType = 1; remoteGlobalIDString = 000000000000000000000002; remoteInfo = SkillGomoku; };
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -97,18 +99,21 @@
 		00000000000000000000006A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = SkillGomoku/Resources/Assets.xcassets; sourceTree = "<group>"; };
 		00000000000000000000006C /* RuleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillGomokuTests/GameEngineTests/RuleEngineTests.swift; sourceTree = "<group>"; };
 		00000000000000000000006E /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillGomokuTests/PersistenceTests/PersistenceTests.swift; sourceTree = "<group>"; };
+		000000000000000000000071 /* SkillGomokuUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillGomokuUITests/SkillGomokuUITests.swift; sourceTree = "<group>"; };
 		00000000000000000000000F /* SkillGomoku.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkillGomoku.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000000000000000000000010 /* SkillGomokuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkillGomokuTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000073 /* SkillGomokuUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkillGomokuUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		00000000000000000000000B /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
 		00000000000000000000000E /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
+		000000000000000000000074 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		000000000000000000000005 = {isa = PBXGroup; children = ( 000000000000000000000007 /* SkillGomoku */, 000000000000000000000008 /* SkillGomokuTests */, 000000000000000000000006 /* Products */ ); sourceTree = "<group>"; };
-		000000000000000000000006 /* Products */ = {isa = PBXGroup; children = ( 00000000000000000000000F /* SkillGomoku.app */, 000000000000000000000010 /* SkillGomokuTests.xctest */ ); name = Products; sourceTree = "<group>"; };
+		000000000000000000000005 = {isa = PBXGroup; children = ( 000000000000000000000007 /* SkillGomoku */, 000000000000000000000008 /* SkillGomokuTests */, 000000000000000000000075 /* SkillGomokuUITests */, 000000000000000000000006 /* Products */ ); sourceTree = "<group>"; };
+		000000000000000000000006 /* Products */ = {isa = PBXGroup; children = ( 00000000000000000000000F /* SkillGomoku.app */, 000000000000000000000010 /* SkillGomokuTests.xctest */, 000000000000000000000073 /* SkillGomokuUITests.xctest */ ); name = Products; sourceTree = "<group>"; };
 		000000000000000000000007 /* SkillGomoku */ = {isa = PBXGroup; children = (
 			00000000000000000000001C /* AppEnvironment.swift */,
 			00000000000000000000001E /* SkillGomokuApp.swift */,
@@ -155,15 +160,19 @@
 			00000000000000000000006C /* RuleEngineTests.swift */,
 			00000000000000000000006E /* PersistenceTests.swift */,
 		); name = SkillGomokuTests; sourceTree = "<group>"; };
+		000000000000000000000075 /* SkillGomokuUITests */ = {isa = PBXGroup; children = (
+			000000000000000000000071 /* SkillGomokuUITests.swift */,
+		); name = SkillGomokuUITests; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
 		000000000000000000000002 /* SkillGomoku */ = {isa = PBXNativeTarget; buildConfigurationList = 000000000000000000000019 /* Build configuration list for PBXNativeTarget "SkillGomoku" */; buildPhases = ( 000000000000000000000009 /* Sources */, 00000000000000000000000B /* Frameworks */, 00000000000000000000000A /* Resources */ ); buildRules = ( ); dependencies = ( ); name = SkillGomoku; productName = SkillGomoku; productReference = 00000000000000000000000F /* SkillGomoku.app */; productType = "com.apple.product-type.application"; };
 		000000000000000000000003 /* SkillGomokuTests */ = {isa = PBXNativeTarget; buildConfigurationList = 00000000000000000000001A /* Build configuration list for PBXNativeTarget "SkillGomokuTests" */; buildPhases = ( 00000000000000000000000C /* Sources */, 00000000000000000000000E /* Frameworks */, 00000000000000000000000D /* Resources */ ); buildRules = ( ); dependencies = ( 000000000000000000000011 /* PBXTargetDependency */ ); name = SkillGomokuTests; productName = SkillGomokuTests; productReference = 000000000000000000000010 /* SkillGomokuTests.xctest */; productType = "com.apple.product-type.bundle.unit-test"; };
+		000000000000000000000076 /* SkillGomokuUITests */ = {isa = PBXNativeTarget; buildConfigurationList = 00000000000000000000007C /* Build configuration list for PBXNativeTarget "SkillGomokuUITests" */; buildPhases = ( 000000000000000000000078 /* Sources */, 000000000000000000000074 /* Frameworks */, 000000000000000000000077 /* Resources */ ); buildRules = ( ); dependencies = ( 000000000000000000000079 /* PBXTargetDependency */ ); name = SkillGomokuUITests; productName = SkillGomokuUITests; productReference = 000000000000000000000073 /* SkillGomokuUITests.xctest */; productType = "com.apple.product-type.bundle.ui-testing"; };
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		000000000000000000000004 /* Project object */ = {isa = PBXProject; attributes = { BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 1600; LastUpgradeCheck = 1600; TargetAttributes = { 000000000000000000000002 = { CreatedOnToolsVersion = 16.0; }; 000000000000000000000003 = { CreatedOnToolsVersion = 16.0; TestTargetID = 000000000000000000000002; }; }; }; buildConfigurationList = 00000000000000000000001B /* Build configuration list for PBXProject "SkillGomoku" */; compatibilityVersion = "Xcode 15.0"; developmentRegion = zh-Hans; hasScannedForEncodings = 0; knownRegions = ( zh-Hans, en, Base ); mainGroup = 000000000000000000000005; productRefGroup = 000000000000000000000006 /* Products */; projectDirPath = ""; projectRoot = ""; targets = ( 000000000000000000000002 /* SkillGomoku */, 000000000000000000000003 /* SkillGomokuTests */ ); };
+		000000000000000000000004 /* Project object */ = {isa = PBXProject; attributes = { BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 1600; LastUpgradeCheck = 1600; TargetAttributes = { 000000000000000000000002 = { CreatedOnToolsVersion = 16.0; }; 000000000000000000000003 = { CreatedOnToolsVersion = 16.0; TestTargetID = 000000000000000000000002; }; 000000000000000000000076 = { CreatedOnToolsVersion = 16.0; TestTargetID = 000000000000000000000002; }; }; }; buildConfigurationList = 00000000000000000000001B /* Build configuration list for PBXProject "SkillGomoku" */; compatibilityVersion = "Xcode 15.0"; developmentRegion = zh-Hans; hasScannedForEncodings = 0; knownRegions = ( zh-Hans, en, Base ); mainGroup = 000000000000000000000005; productRefGroup = 000000000000000000000006 /* Products */; projectDirPath = ""; projectRoot = ""; targets = ( 000000000000000000000002 /* SkillGomoku */, 000000000000000000000003 /* SkillGomokuTests */, 000000000000000000000076 /* SkillGomokuUITests */ ); };
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -171,6 +180,7 @@
 			00000000000000000000006B /* Assets.xcassets in Resources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 		00000000000000000000000D /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
+		000000000000000000000077 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -218,10 +228,14 @@
 			00000000000000000000006D /* RuleEngineTests.swift in Sources */,
 			00000000000000000000006F /* PersistenceTests.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
+		000000000000000000000078 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			000000000000000000000070 /* SkillGomokuUITests.swift in Sources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
 		000000000000000000000011 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 000000000000000000000002 /* SkillGomoku */; targetProxy = 000000000000000000000012 /* PBXContainerItemProxy */; };
+		000000000000000000000079 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 000000000000000000000002 /* SkillGomoku */; targetProxy = 000000000000000000000072 /* PBXContainerItemProxy */; };
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -308,12 +322,37 @@
 			TARGETED_DEVICE_FAMILY = "1,2";
 			TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SkillGomoku.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SkillGomoku";
 		}; name = Release; };
+		00000000000000000000007A /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+			CODE_SIGN_STYLE = Automatic;
+			CURRENT_PROJECT_VERSION = 1;
+			GENERATE_INFOPLIST_FILE = YES;
+			MARKETING_VERSION = 1.0;
+			PRODUCT_BUNDLE_IDENTIFIER = com.chengyang.SkillGomokuUITests;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_EMIT_LOC_STRINGS = NO;
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+			TEST_TARGET_NAME = SkillGomoku;
+		}; name = Debug; };
+		00000000000000000000007B /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+			CODE_SIGN_STYLE = Automatic;
+			CURRENT_PROJECT_VERSION = 1;
+			GENERATE_INFOPLIST_FILE = YES;
+			MARKETING_VERSION = 1.0;
+			PRODUCT_BUNDLE_IDENTIFIER = com.chengyang.SkillGomokuUITests;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_EMIT_LOC_STRINGS = NO;
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+			TEST_TARGET_NAME = SkillGomoku;
+		}; name = Release; };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
 		00000000000000000000001B /* Build configuration list for PBXProject "SkillGomoku" */ = {isa = XCConfigurationList; buildConfigurations = ( 000000000000000000000017 /* Debug */, 000000000000000000000018 /* Release */ ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		000000000000000000000019 /* Build configuration list for PBXNativeTarget "SkillGomoku" */ = {isa = XCConfigurationList; buildConfigurations = ( 000000000000000000000013 /* Debug */, 000000000000000000000014 /* Release */ ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		00000000000000000000001A /* Build configuration list for PBXNativeTarget "SkillGomokuTests" */ = {isa = XCConfigurationList; buildConfigurations = ( 000000000000000000000015 /* Debug */, 000000000000000000000016 /* Release */ ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		00000000000000000000007C /* Build configuration list for PBXNativeTarget "SkillGomokuUITests" */ = {isa = XCConfigurationList; buildConfigurations = ( 00000000000000000000007A /* Debug */, 00000000000000000000007B /* Release */ ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
 
 	};

@@ -7,7 +7,10 @@ protocol CameraAvailabilityProviding {
 
 struct DeviceCameraAvailability: CameraAvailabilityProviding {
     var isCameraAvailable: Bool {
-        UIImagePickerController.isSourceTypeAvailable(.camera)
+        if ProcessInfo.processInfo.environment["UITEST_FORCE_CAMERA_UNAVAILABLE"] == "1" {
+            return false
+        }
+        return UIImagePickerController.isSourceTypeAvailable(.camera)
     }
 }
 

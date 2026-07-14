@@ -115,10 +115,10 @@ struct TurnBanner: View {
 struct SkillReserveStrip: View {
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Label("技能区预留", systemImage: "rectangle.stack.badge.plus")
+            Label("经典模式", systemImage: "circle.grid.cross.fill")
                 .font(.subheadline.bold())
                 .foregroundStyle(AppColor.textPrimary)
-            Text("经典模式不会启用技能；后续阶段将在这里显示技能卡状态。")
+            Text("当前对局不启用技能卡，专注纯粹五子连珠。")
                 .font(.caption)
                 .foregroundStyle(AppColor.textSecondary)
         }

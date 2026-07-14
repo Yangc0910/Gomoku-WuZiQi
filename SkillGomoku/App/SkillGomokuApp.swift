@@ -9,7 +9,8 @@ struct SkillGomokuApp: App {
             PersistedMatchEntity.self,
             MatchRecordEntity.self
         ])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let isUITesting = ProcessInfo.processInfo.environment["UITEST_IN_MEMORY_STORE"] == "1"
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isUITesting)
 
         do {
             return try ModelContainer(for: schema, configurations: [configuration])
