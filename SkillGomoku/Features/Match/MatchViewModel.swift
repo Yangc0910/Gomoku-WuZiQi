@@ -14,6 +14,12 @@ final class MatchViewModel {
     private let repository: MatchRepository
     private let playerOneID: UUID
     private let playerTwoID: UUID
+    private var didRecordCompletion = false
+    private var history: [GameState] = []
+
+    var canUndo: Bool {
+        !history.isEmpty && !state.status.isFinished
+    }
 
     init(
         state: GameState,
@@ -32,10 +38,13 @@ final class MatchViewModel {
 
     func placeStone(at coordinate: Coordinate, side: PlayerSide) {
         do {
+            let previousState = state
             state = try engine.applying(.placeStone(coordinate: coordinate, side: side), to: state)
+            history.append(previousState)
             errorMessage = nil
-            try save()
+            let match = try save()
             if state.status.isFinished {
+                try recordCompletionIfNeeded(matchID: match.id)
                 finishedMatch = state.status
             }
         } catch {
@@ -43,7 +52,20 @@ final class MatchViewModel {
         }
     }
 
-    func save() throws {
+    func undoLastMove() {
+        guard canUndo, let previous = history.popLast() else { return }
+        do {
+            state = previous
+            finishedMatch = nil
+            errorMessage = nil
+            try save()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    @discardableResult
+    func save() throws -> PersistedMatchEntity {
         let match = try repository.saveUnfinished(
             id: persistedMatchID,
             state: state,
@@ -51,5 +73,17 @@ final class MatchViewModel {
             playerTwoID: playerTwoID
         )
         persistedMatchID = match.id
+        return match
+    }
+
+    private func recordCompletionIfNeeded(matchID: UUID) throws {
+        guard state.status.isFinished, !didRecordCompletion else { return }
+        try repository.recordCompletedMatchIfNeeded(
+            matchID: matchID,
+            state: state,
+            playerOneID: playerOneID,
+            playerTwoID: playerTwoID
+        )
+        didRecordCompletion = true
     }
 }

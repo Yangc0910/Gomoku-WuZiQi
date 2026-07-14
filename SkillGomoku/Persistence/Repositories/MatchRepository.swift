@@ -24,6 +24,7 @@ final class MatchRepository {
         try decoder.decode(GameState.self, from: match.encodedState)
     }
 
+    @discardableResult
     func saveUnfinished(
         id: UUID? = nil,
         state: GameState,
@@ -65,5 +66,84 @@ final class MatchRepository {
         match.isFinished = true
         match.updatedAt = Date()
         try context.save()
+    }
+
+    func recordCompletedMatchIfNeeded(
+        matchID: UUID,
+        state: GameState,
+        playerOneID: UUID,
+        playerTwoID: UUID
+    ) throws {
+        guard let result = completionResult(for: state.status) else { return }
+
+        var recordDescriptor = FetchDescriptor<MatchRecordEntity>(
+            predicate: #Predicate { $0.id == matchID }
+        )
+        recordDescriptor.fetchLimit = 1
+        guard try context.fetch(recordDescriptor).isEmpty else { return }
+
+        let persistedMatch = try persistedMatch(id: matchID)
+        let winnerID = result.winner.map { $0 == .playerOne ? playerOneID : playerTwoID }
+        let record = MatchRecordEntity(
+            id: matchID,
+            mode: state.mode,
+            playerOneID: playerOneID,
+            playerTwoID: playerTwoID,
+            winnerID: winnerID,
+            reason: result.reason,
+            startedAt: persistedMatch?.startedAt ?? Date(),
+            turnCount: state.turnCount
+        )
+        context.insert(record)
+
+        try updateStats(playerOneID: playerOneID, playerTwoID: playerTwoID, winner: result.winner)
+        try context.save()
+    }
+
+    private func completionResult(for status: MatchStatus) -> (winner: PlayerSide?, reason: MatchResultReason)? {
+        switch status {
+        case .inProgress:
+            return nil
+        case let .won(winner, reason):
+            return (winner, reason)
+        case let .draw(reason):
+            return (nil, reason)
+        }
+    }
+
+    private func persistedMatch(id: UUID) throws -> PersistedMatchEntity? {
+        var descriptor = FetchDescriptor<PersistedMatchEntity>(
+            predicate: #Predicate { $0.id == id }
+        )
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
+    }
+
+    private func player(id: UUID) throws -> PlayerProfileEntity? {
+        var descriptor = FetchDescriptor<PlayerProfileEntity>(
+            predicate: #Predicate { $0.id == id }
+        )
+        descriptor.fetchLimit = 1
+        return try context.fetch(descriptor).first
+    }
+
+    private func updateStats(playerOneID: UUID, playerTwoID: UUID, winner: PlayerSide?) throws {
+        guard let playerOne = try player(id: playerOneID),
+              let playerTwo = try player(id: playerTwoID) else { return }
+
+        playerOne.matchesPlayed += 1
+        playerTwo.matchesPlayed += 1
+
+        switch winner {
+        case .some(.playerOne):
+            playerOne.wins += 1
+            playerTwo.losses += 1
+        case .some(.playerTwo):
+            playerTwo.wins += 1
+            playerOne.losses += 1
+        case nil:
+            playerOne.draws += 1
+            playerTwo.draws += 1
+        }
     }
 }

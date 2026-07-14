@@ -3,6 +3,7 @@ import SwiftUI
 struct MatchResultView: View {
     @Environment(\.dismiss) private var dismiss
     let status: MatchStatus
+    let turnCount: Int
     let playerOne: PlayerProfileEntity
     let playerTwo: PlayerProfileEntity
 
@@ -20,6 +21,10 @@ struct MatchResultView: View {
 
                 Text(reasonText)
                     .font(.headline)
+                    .foregroundStyle(AppColor.textSecondary)
+
+                Text("回合数 \(turnCount)")
+                    .font(.subheadline)
                     .foregroundStyle(AppColor.textSecondary)
 
                 Button("回到对局") {

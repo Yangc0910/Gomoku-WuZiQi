@@ -1,7 +1,7 @@
 import Foundation
 
 struct AppEnvironment {
-    var avatarService: AvatarStoring = AvatarService()
-    var cameraAvailability: CameraAvailabilityProviding = DeviceCameraAvailability()
+    var avatarService: any AvatarStoring = AvatarService()
+    var cameraAvailability: any CameraAvailabilityProviding = DeviceCameraAvailability()
     var ruleEngine = RuleEngine()
 }

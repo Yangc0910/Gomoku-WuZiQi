@@ -31,3 +31,5 @@ Phase 0 + Phase 1 foundation is in progress:
 - Local player profiles and avatars
 - iPhone / iPad responsive match layout
 - SwiftData persistence for players and unfinished matches
+- Completed match records and local win/loss/draw stats
+- In-match undo, placement preview, and invalid-position feedback

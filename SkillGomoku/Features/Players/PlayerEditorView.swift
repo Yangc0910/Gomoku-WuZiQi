@@ -13,6 +13,8 @@ struct PlayerEditorView: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var previewImage: UIImage?
     @State private var showingCamera = false
+    @State private var showingDeleteConfirmation = false
+    @State private var shouldUseDefaultAvatar = false
     @State private var errorMessage: String?
 
     private let avatarService = AvatarService()
@@ -54,9 +56,19 @@ struct PlayerEditorView: View {
 
                 Button(role: .destructive) {
                     previewImage = nil
-                    player?.avatarFilename = nil
+                    shouldUseDefaultAvatar = true
                 } label: {
                     Label("使用默认头像", systemImage: "person.crop.circle")
+                }
+            }
+
+            if player != nil {
+                Section {
+                    Button(role: .destructive) {
+                        showingDeleteConfirmation = true
+                    } label: {
+                        Label("删除玩家", systemImage: "trash")
+                    }
                 }
             }
 
@@ -81,6 +93,7 @@ struct PlayerEditorView: View {
             name = player?.displayName ?? ""
             selectedTheme = PlayerSide(rawValue: player?.themeToken ?? "") ?? .playerOne
             previewImage = avatarService.image(for: player?.avatarFilename)
+            shouldUseDefaultAvatar = false
         }
         .onChange(of: selectedPhoto) { _, item in
             loadPhoto(item)
@@ -88,7 +101,16 @@ struct PlayerEditorView: View {
         .sheet(isPresented: $showingCamera) {
             CameraPicker { image in
                 previewImage = image
+                shouldUseDefaultAvatar = false
             }
+        }
+        .confirmationDialog("删除这位玩家？", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
+            Button("删除", role: .destructive) {
+                deletePlayer()
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("这只会删除本机的玩家档案和头像文件。")
         }
     }
 
@@ -120,6 +142,7 @@ struct PlayerEditorView: View {
                       let image = UIImage(data: data) else { return }
                 await MainActor.run {
                     previewImage = image
+                    shouldUseDefaultAvatar = false
                 }
             } catch {
                 await MainActor.run {
@@ -136,12 +159,27 @@ struct PlayerEditorView: View {
             target.displayName = trimmedName
             target.themeToken = selectedTheme.rawValue
             target.lastUsedAt = Date()
-            if let previewImage {
+            if shouldUseDefaultAvatar {
+                try avatarService.deleteAvatar(filename: target.avatarFilename)
+                target.avatarFilename = nil
+            } else if let previewImage {
                 target.avatarFilename = try avatarService.saveAvatarImage(previewImage, for: target.id)
             }
             if player == nil {
                 modelContext.insert(target)
             }
+            try modelContext.save()
+            dismiss()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func deletePlayer() {
+        guard let player else { return }
+        do {
+            try avatarService.deleteAvatar(filename: player.avatarFilename)
+            modelContext.delete(player)
             try modelContext.save()
             dismiss()
         } catch {

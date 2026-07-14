@@ -42,6 +42,15 @@ struct MatchView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if viewModel?.canUndo == true {
+                Button {
+                    viewModel?.undoLastMove()
+                } label: {
+                    Image(systemName: "arrow.uturn.backward")
+                }
+                .accessibilityLabel("撤销上一步")
+            }
+
             Button {
                 showingPause = true
             } label: {
@@ -55,8 +64,15 @@ struct MatchView: View {
             }
             Button("继续", role: .cancel) {}
         }
-        .sheet(item: resultBinding) { status in
-            MatchResultView(status: status.status, playerOne: playerOne, playerTwo: playerTwo)
+        .sheet(isPresented: resultPresented) {
+            if let status = viewModel?.finishedMatch {
+                MatchResultView(
+                    status: status,
+                    turnCount: viewModel?.state.turnCount ?? 0,
+                    playerOne: playerOne,
+                    playerTwo: playerTwo
+                )
+            }
         }
         .task {
             makeViewModelIfNeeded()
@@ -108,12 +124,11 @@ struct MatchView: View {
             .frame(minHeight: 18)
     }
 
-    private var resultBinding: Binding<ResultSheetItem?> {
+    private var resultPresented: Binding<Bool> {
         Binding {
-            guard let status = viewModel?.finishedMatch else { return nil }
-            return ResultSheetItem(status: status)
+            viewModel?.finishedMatch != nil
         } set: { newValue in
-            if newValue == nil {
+            if !newValue {
                 viewModel?.finishedMatch = nil
             }
         }
@@ -137,9 +152,4 @@ struct MatchView: View {
             playerTwoID: playerTwo.id
         )
     }
-}
-
-private struct ResultSheetItem: Identifiable {
-    let id = UUID()
-    let status: MatchStatus
 }
