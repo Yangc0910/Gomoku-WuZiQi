@@ -59,6 +59,7 @@ struct PlayerRow: View {
 struct AvatarView: View {
     let player: PlayerProfileEntity
     let size: CGFloat
+    var accent: Color? = nil
     private let avatarService = AvatarService()
 
     var body: some View {
@@ -69,19 +70,19 @@ struct AvatarView: View {
                     .scaledToFill()
             } else {
                 ZStack {
-                    Circle().fill(playerSide.themeColor.opacity(0.25))
+                    Circle().fill(accentColor.opacity(0.22))
                     Text(String(player.displayName.prefix(1)))
                         .font(.system(size: size * 0.38, weight: .bold, design: .rounded))
-                        .foregroundStyle(playerSide.themeColor)
+                        .foregroundStyle(accentColor)
                 }
             }
         }
         .frame(width: size, height: size)
         .clipShape(Circle())
-        .overlay(Circle().stroke(playerSide.themeColor.opacity(0.7), lineWidth: 2))
+        .overlay(Circle().stroke(accentColor.opacity(0.78), lineWidth: 2))
     }
 
-    private var playerSide: PlayerSide {
-        PlayerSide(rawValue: player.themeToken) ?? .playerOne
+    private var accentColor: Color {
+        accent ?? (PlayerSide(rawValue: player.themeToken) ?? .playerOne).themeColor
     }
 }

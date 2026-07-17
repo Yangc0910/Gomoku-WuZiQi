@@ -22,44 +22,167 @@ struct PlayerPanel: View {
     }
 
     var body: some View {
-        GlassCard(isActive: state.currentPlayer == side && !state.status.isFinished, accent: side.themeColor) {
-            VStack(alignment: .leading, spacing: AppSpacing.lg) {
-                playerHeader
-                stats
-                SkillReserveStrip(
-                    state: state,
-                    side: side,
-                    selectedSkill: selectedSkill,
-                    compact: false,
-                    onSkillTap: onSkillTap
+        VStack(alignment: .leading, spacing: AppSpacing.lg) {
+            PlayerIdentityHeader(player: player, side: side, state: state, avatarSize: 64)
+
+            HStack(spacing: AppSpacing.sm) {
+                PlayerStat(title: "棋子", value: "\(state.board.coordinates(for: side).count)")
+                PlayerStat(title: "顺序", value: side == state.firstPlayer ? "先手" : "后手")
+            }
+
+            SkillReserveStrip(
+                state: state,
+                side: side,
+                selectedSkill: selectedSkill,
+                compact: false,
+                onSkillTap: onSkillTap
+            )
+
+            Spacer(minLength: 0)
+        }
+        .padding(AppSpacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .fill(panelGradient)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .stroke(
+                    state.currentPlayer == side ? side.themeColor.opacity(0.75) : AppColor.divider,
+                    lineWidth: state.currentPlayer == side ? 1.5 : 1
                 )
-                Spacer(minLength: 0)
-            }
-        }
+        )
+        .shadow(
+            color: state.currentPlayer == side ? side.themeColor.opacity(0.11) : .black.opacity(0.2),
+            radius: 18,
+            y: 10
+        )
     }
 
-    private var playerHeader: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.md) {
-            AvatarView(player: player, size: 76)
-            Text(player.displayName)
-                .font(.title2.bold())
-                .foregroundStyle(AppColor.textPrimary)
-                .lineLimit(2)
+    private var panelGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                isActive ? side.themeColor.opacity(0.16) : Color.white.opacity(0.055),
+                AppColor.surface.opacity(0.92)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    private var isActive: Bool {
+        state.currentPlayer == side && !state.status.isFinished
+    }
+}
+
+struct PlayerDock: View {
+    let player: PlayerProfileEntity
+    let side: PlayerSide
+    let state: GameState
+    let selectedSkill: SkillIdentifier?
+    let onSkillTap: ((SkillIdentifier) -> Void)?
+
+    var body: some View {
+        VStack(spacing: AppSpacing.sm) {
+            PlayerIdentityHeader(player: player, side: side, state: state, avatarSize: 38)
+            SkillReserveStrip(
+                state: state,
+                side: side,
+                selectedSkill: selectedSkill,
+                compact: true,
+                onSkillTap: onSkillTap
+            )
+        }
+        .padding(.horizontal, AppSpacing.sm)
+        .padding(.vertical, AppSpacing.sm)
+        .background(
+            RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            isActive ? side.themeColor.opacity(0.18) : Color.white.opacity(0.055),
+                            AppColor.surface.opacity(0.93)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
+                .stroke(isActive ? side.themeColor.opacity(0.78) : AppColor.divider, lineWidth: isActive ? 1.5 : 1)
+        )
+        .animation(.easeOut(duration: 0.2), value: state.currentPlayer)
+    }
+
+    private var isActive: Bool {
+        state.currentPlayer == side && !state.status.isFinished
+    }
+}
+
+private struct PlayerIdentityHeader: View {
+    let player: PlayerProfileEntity
+    let side: PlayerSide
+    let state: GameState
+    let avatarSize: CGFloat
+
+    var body: some View {
+        HStack(spacing: AppSpacing.sm) {
+            AvatarView(player: player, size: avatarSize, accent: side.themeColor)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(player.displayName)
+                    .font(avatarSize > 50 ? .title3.bold() : .subheadline.bold())
+                    .foregroundStyle(AppColor.textPrimary)
+                    .lineLimit(1)
+                HStack(spacing: AppSpacing.xs) {
+                    Circle()
+                        .fill(side.themeColor)
+                        .frame(width: 7, height: 7)
+                    Text("\(side.displayName) · \(side == state.firstPlayer ? "先手" : "后手")")
+                        .font(.caption2)
+                        .foregroundStyle(AppColor.textSecondary)
+                }
+            }
+
+            Spacer(minLength: AppSpacing.xs)
+
             if state.currentPlayer == side && !state.status.isFinished {
-                Label("当前回合", systemImage: "sparkle")
-                    .font(.caption.bold())
-                    .foregroundStyle(side.themeColor)
+                Text("行动中")
+                    .font(.caption2.weight(.heavy))
+                    .foregroundStyle(AppColor.background)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 6)
+                    .background(Capsule().fill(side.themeColor))
+                    .transition(.scale.combined(with: .opacity))
+            } else {
+                Text("\(state.board.coordinates(for: side).count) 子")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(AppColor.textSecondary)
             }
         }
     }
+}
 
-    private var stats: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Label("棋子数 \(state.board.coordinates(for: side).count)", systemImage: "circle.grid.3x3.fill")
-            Label(side == state.firstPlayer ? "先手" : "后手", systemImage: "flag.fill")
+private struct PlayerStat: View {
+    let title: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.caption2)
+                .foregroundStyle(AppColor.textSecondary)
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppColor.textPrimary)
         }
-        .font(.subheadline)
-        .foregroundStyle(AppColor.textSecondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppSpacing.sm)
+        .background(
+            RoundedRectangle(cornerRadius: AppRadius.compact, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+        )
     }
 }
 
@@ -69,23 +192,13 @@ struct PlayerSummaryCard: View {
     let state: GameState
 
     var body: some View {
-        GlassCard(isActive: state.currentPlayer == side && !state.status.isFinished, accent: side.themeColor) {
-            HStack(spacing: AppSpacing.md) {
-                AvatarView(player: player, size: 50)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(player.displayName)
-                        .font(.headline)
-                        .foregroundStyle(AppColor.textPrimary)
-                    Text("棋子 \(state.board.coordinates(for: side).count) · \(side == state.firstPlayer ? "先手" : "后手")")
-                        .font(.caption)
-                        .foregroundStyle(AppColor.textSecondary)
-                }
-                Spacer()
-                Text(side.stoneSymbol)
-                    .font(.title2.bold())
-                    .foregroundStyle(side.themeColor)
-            }
-        }
+        PlayerDock(
+            player: player,
+            side: side,
+            state: state,
+            selectedSkill: nil,
+            onSkillTap: nil
+        )
     }
 }
 
@@ -95,24 +208,37 @@ struct TurnBanner: View {
     let playerTwo: PlayerProfileEntity
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(AppColor.textPrimary)
-                Text("第 \(state.turnCount) 回合")
-                    .font(.caption)
-                    .foregroundStyle(AppColor.textSecondary)
-            }
-            Spacer()
-            Image(systemName: state.status.isFinished ? "checkmark.seal.fill" : "hand.tap.fill")
-                .foregroundStyle(currentSide.themeColor)
+        HStack(spacing: AppSpacing.sm) {
+            Circle()
+                .fill(currentSide.themeColor)
+                .frame(width: 10, height: 10)
+                .shadow(color: currentSide.themeColor.opacity(0.65), radius: 6)
+            Text(title)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(AppColor.textPrimary)
+                .lineLimit(1)
+            Spacer(minLength: AppSpacing.sm)
+            Text("第 \(state.turnCount) 回合")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(AppColor.textSecondary)
         }
-        .padding(AppSpacing.md)
+        .padding(.horizontal, AppSpacing.md)
+        .frame(height: 42)
         .background(
-            RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
-                .fill(AppColor.surface)
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: [currentSide.themeColor.opacity(0.16), AppColor.surface.opacity(0.92)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
         )
+        .overlay(
+            Capsule()
+                .stroke(currentSide.themeColor.opacity(0.25), lineWidth: 1)
+        )
+        .animation(.easeOut(duration: 0.2), value: state.currentPlayer)
     }
 
     private var currentSide: PlayerSide {
@@ -155,15 +281,15 @@ struct SkillReserveStrip: View {
         self.onSkillTap = onSkillTap
     }
 
+    @ViewBuilder
     var body: some View {
         if skills.isEmpty {
-            classicModeCard
+            if !compact {
+                classicModeCard
+            }
         } else if compact {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppSpacing.sm) {
-                    skillCards
-                }
-                .padding(.vertical, 2)
+            LazyVGrid(columns: compactColumns, spacing: 6) {
+                skillCards
             }
         } else {
             VStack(spacing: AppSpacing.sm) {
@@ -176,12 +302,20 @@ struct SkillReserveStrip: View {
         state.skillStates[side] ?? []
     }
 
+    private var compactColumns: [GridItem] {
+        Array(
+            repeating: GridItem(.flexible(minimum: 44), spacing: 6),
+            count: max(skills.count, 1)
+        )
+    }
+
     private var skillCards: some View {
         ForEach(skills) { skillState in
             let availability = RuleEngine().availability(of: skillState.id, for: side, in: state)
             SkillCard(
                 skillState: skillState,
                 side: side,
+                state: state,
                 availability: availability,
                 isSelected: selectedSkill == skillState.id && state.currentPlayer == side,
                 compact: compact
@@ -193,19 +327,19 @@ struct SkillReserveStrip: View {
     }
 
     private var classicModeCard: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+        VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Label("经典模式", systemImage: "circle.grid.cross.fill")
-                .font(.subheadline.bold())
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(AppColor.textPrimary)
-            Text("当前对局不启用技能卡，专注纯粹五子连珠。")
+            Text(state.currentPlayer == side ? "轮到你落子" : "等待对手落子")
                 .font(.caption)
-                .foregroundStyle(AppColor.textSecondary)
+                .foregroundStyle(state.currentPlayer == side ? side.themeColor : AppColor.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(AppSpacing.md)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
-                .fill(Color.white.opacity(0.06))
+                .fill(Color.white.opacity(0.04))
         )
     }
 }
@@ -213,101 +347,146 @@ struct SkillReserveStrip: View {
 private struct SkillCard: View {
     let skillState: SkillState
     let side: PlayerSide
+    let state: GameState
     let availability: SkillAvailability
     let isSelected: Bool
     let compact: Bool
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) { cardContent }
+        Button(action: action) {
+            if compact {
+                compactContent
+            } else {
+                expandedContent
+            }
+        }
         .buttonStyle(.plain)
         .accessibilityLabel(skillState.id.title)
         .accessibilityIdentifier("skill-\(side.rawValue)-\(skillState.id.rawValue)")
         .accessibilityHint(statusText)
     }
 
-    private var cardContent: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            header
-            summaryText
-            statusLabel
+    private var compactContent: some View {
+        VStack(spacing: 4) {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: skillState.id.symbolName)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(isSelected ? AppColor.background : skillState.id.category.themeColor)
+                    .frame(width: 30, height: 30)
+                    .background(
+                        RoundedRectangle(cornerRadius: 9, style: .continuous)
+                            .fill(isSelected ? skillState.id.category.themeColor : skillState.id.category.themeColor.opacity(0.12))
+                    )
+                if skillState.cooldownRemaining > 0 {
+                    Text("\(skillState.cooldownRemaining)")
+                        .font(.system(size: 8, weight: .black))
+                        .foregroundStyle(AppColor.background)
+                        .frame(width: 14, height: 14)
+                        .background(Circle().fill(AppColor.warning))
+                        .offset(x: 4, y: -4)
+                }
+            }
+            Text(skillState.id.title)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(AppColor.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.68)
+            Text(shortStatusText)
+                .font(.system(size: 8, weight: .bold))
+                .foregroundStyle(statusColor)
+                .lineLimit(1)
         }
-        .frame(width: compact ? 154 : nil, alignment: .topLeading)
-        .frame(minHeight: compact ? 82 : 96, alignment: .topLeading)
-        .frame(maxWidth: compact ? nil : .infinity, alignment: .leading)
-        .padding(AppSpacing.sm)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 6)
+        .padding(.horizontal, 2)
         .background(cardBackground)
         .overlay(cardBorder)
-        .opacity(availability.isUsable || isSelected ? 1 : 0.56)
+        .opacity(isAvailableVisual ? 1 : 0.48)
     }
 
-    private var header: some View {
+    private var expandedContent: some View {
         HStack(spacing: AppSpacing.sm) {
             Image(systemName: skillState.id.symbolName)
                 .font(.headline)
-                .foregroundStyle(iconColor)
-                .frame(width: 22)
-            Text(skillState.id.title)
-                .font(.subheadline.bold())
-                .foregroundStyle(AppColor.textPrimary)
-                .lineLimit(1)
-            Spacer(minLength: 0)
-        }
-    }
+                .foregroundStyle(isSelected ? AppColor.background : skillState.id.category.themeColor)
+                .frame(width: 38, height: 38)
+                .background(
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        .fill(isSelected ? skillState.id.category.themeColor : skillState.id.category.themeColor.opacity(0.12))
+                )
 
-    @ViewBuilder
-    private var summaryText: some View {
-        if !compact {
-            Text(skillState.id.summary)
-                .font(.caption)
-                .foregroundStyle(AppColor.textSecondary)
-                .lineLimit(2)
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(skillState.id.title)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(AppColor.textPrimary)
+                    Spacer()
+                    Text(statusText)
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(statusColor)
+                }
+                Text(skillState.id.summary)
+                    .font(.caption)
+                    .foregroundStyle(AppColor.textSecondary)
+                    .lineLimit(2)
+            }
         }
-    }
-
-    private var statusLabel: some View {
-        Text(statusText)
-            .font(.caption2.bold())
-            .foregroundStyle(statusColor)
-            .lineLimit(2)
-            .minimumScaleFactor(0.75)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppSpacing.sm)
+        .background(cardBackground)
+        .overlay(cardBorder)
+        .opacity(isAvailableVisual ? 1 : 0.5)
     }
 
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
-            .fill(backgroundColor)
+        RoundedRectangle(cornerRadius: AppRadius.compact, style: .continuous)
+            .fill(
+                isSelected
+                    ? skillState.id.category.themeColor.opacity(0.18)
+                    : Color.white.opacity(availability.isUsable ? 0.055 : 0.025)
+            )
     }
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
-            .stroke(borderColor, lineWidth: isSelected ? 2 : 1)
+        RoundedRectangle(cornerRadius: AppRadius.compact, style: .continuous)
+            .stroke(
+                isSelected ? skillState.id.category.themeColor : AppColor.divider,
+                lineWidth: isSelected ? 1.5 : 1
+            )
     }
 
-    private var backgroundColor: Color {
-        if isSelected { return AppColor.accent.opacity(0.22) }
-        return Color.white.opacity(availability.isUsable ? 0.08 : 0.04)
-    }
-
-    private var borderColor: Color {
-        if isSelected { return AppColor.accent }
-        return Color.white.opacity(availability.isUsable ? 0.14 : 0.05)
-    }
-
-    private var iconColor: Color {
-        isSelected ? AppColor.accent : (availability.isUsable ? AppColor.success : AppColor.textSecondary)
+    private var isAvailableVisual: Bool {
+        availability.isUsable || isSelected
     }
 
     private var statusColor: Color {
-        if isSelected { return AppColor.accent }
-        return availability.isUsable ? AppColor.success : AppColor.textSecondary
+        if isSelected { return skillState.id.category.themeColor }
+        if skillState.cooldownRemaining > 0 { return AppColor.warning }
+        return availability.isUsable ? skillState.id.category.themeColor : AppColor.textSecondary
+    }
+
+    private var shortStatusText: String {
+        if isSelected { return "选目标" }
+        if skillState.cooldownRemaining > 0 { return "\(skillState.cooldownRemaining) 回合" }
+        if skillState.isExhausted { return "已用完" }
+        if state.currentPlayer != side { return "等待" }
+        if availability.isUsable {
+            if let remaining = skillState.remainingUses {
+                return "余 \(remaining) 次"
+            }
+            return "可用"
+        }
+        return "暂不可用"
     }
 
     private var statusText: String {
         if isSelected { return "选择目标中" }
+        if skillState.cooldownRemaining > 0 { return "冷却 \(skillState.cooldownRemaining) 回合" }
+        if skillState.isExhausted { return "本局次数已用完" }
+        if state.currentPlayer != side { return "等待你的回合" }
         if !availability.isUsable { return availability.reason }
-        if skillState.cooldownRemaining > 0 {
-            return "冷却 \(skillState.cooldownRemaining)"
-        }
-        return skillState.useCountText
+        if let remaining = skillState.remainingUses { return "剩余 \(remaining) 次" }
+        return "可以使用"
     }
 }

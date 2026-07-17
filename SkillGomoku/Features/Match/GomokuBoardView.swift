@@ -32,8 +32,33 @@ struct GomokuBoardView: View {
 
             ZStack {
                 RoundedRectangle(cornerRadius: AppRadius.board, style: .continuous)
-                    .fill(AppColor.board)
-                    .shadow(color: Color.black.opacity(0.26), radius: 16, y: 8)
+                    .fill(
+                        LinearGradient(
+                            colors: [AppColor.board, Color(red: 0.82, green: 0.79, blue: 0.73)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppRadius.board, style: .continuous)
+                            .stroke(AppColor.boardEdge.opacity(0.72), lineWidth: 1.5)
+                    )
+                    .shadow(color: Color.black.opacity(0.38), radius: 20, y: 12)
+
+                Canvas { context, _ in
+                    for index in 0..<11 {
+                        let y = inset + CGFloat(index) * (side - inset * 2) / 10
+                        var grain = Path()
+                        grain.move(to: CGPoint(x: inset, y: y))
+                        grain.addCurve(
+                            to: CGPoint(x: side - inset, y: y + CGFloat(index % 3 - 1) * 2.5),
+                            control1: CGPoint(x: side * 0.32, y: y + 4),
+                            control2: CGPoint(x: side * 0.68, y: y - 4)
+                        )
+                        context.stroke(grain, with: .color(Color.white.opacity(0.055)), lineWidth: 1)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.board, style: .continuous))
 
                 Canvas { context, size in
                     var path = Path()
@@ -45,6 +70,28 @@ struct GomokuBoardView: View {
                         path.addLine(to: CGPoint(x: position, y: side - inset))
                     }
                     context.stroke(path, with: .color(AppColor.grid.opacity(0.82)), lineWidth: 1)
+
+                    let starCoordinates = [
+                        Coordinate(row: 3, column: 3),
+                        Coordinate(row: 3, column: 11),
+                        Coordinate(row: 7, column: 7),
+                        Coordinate(row: 11, column: 3),
+                        Coordinate(row: 11, column: 11)
+                    ]
+                    for coordinate in starCoordinates {
+                        let center = CGPoint(
+                            x: inset + CGFloat(coordinate.column) * spacing,
+                            y: inset + CGFloat(coordinate.row) * spacing
+                        )
+                        let radius = max(2.2, spacing * 0.10)
+                        let rect = CGRect(
+                            x: center.x - radius,
+                            y: center.y - radius,
+                            width: radius * 2,
+                            height: radius * 2
+                        )
+                        context.fill(Path(ellipseIn: rect), with: .color(AppColor.grid.opacity(0.9)))
+                    }
                 }
 
                 ForEach(0..<state.board.size, id: \.self) { row in
@@ -160,12 +207,12 @@ private struct PlacementPreview: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(side.themeColor.opacity(0.28))
+                .fill(side.themeColor.opacity(0.24))
             Circle()
                 .stroke(side.themeColor, style: StrokeStyle(lineWidth: 2, dash: [5, 4]))
-            Text(side.stoneSymbol)
-                .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.8))
+            Circle()
+                .fill(side.themeColor)
+                .frame(width: 5, height: 5)
         }
     }
 }
@@ -214,21 +261,24 @@ private struct StoneView: View {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [side.themeColor.opacity(0.96), side.themeColor.opacity(0.62)],
-                        center: .topLeading,
-                        startRadius: 2,
-                        endRadius: 24
+                        colors: [
+                            Color.white.opacity(side == .playerOne ? 0.62 : 0.45),
+                            side.themeColor,
+                            side.themeColor.opacity(0.72)
+                        ],
+                        center: UnitPoint(x: 0.28, y: 0.22),
+                        startRadius: 1,
+                        endRadius: 30
                     )
                 )
-                .overlay(Circle().stroke(.white.opacity(side == .playerOne ? 0.55 : 0.35), lineWidth: 1.5))
-            Text(side.stoneSymbol)
-                .font(.system(size: 14, weight: .heavy, design: .rounded))
-                .minimumScaleFactor(0.45)
-                .foregroundStyle(.white)
+                .overlay(Circle().stroke(.white.opacity(0.42), lineWidth: 1))
             if isLastMove {
                 Circle()
-                    .stroke(.white, lineWidth: 3)
-                    .padding(-3)
+                    .stroke(AppColor.background.opacity(0.78), lineWidth: 2)
+                    .padding(3)
+                Circle()
+                    .fill(AppColor.background.opacity(0.8))
+                    .frame(width: 5, height: 5)
             }
             if let protection {
                 Circle()
@@ -242,6 +292,6 @@ private struct StoneView: View {
                     .offset(x: 9, y: -9)
             }
         }
-        .shadow(color: side.themeColor.opacity(0.32), radius: 6, y: 3)
+        .shadow(color: Color.black.opacity(0.32), radius: 4, y: 3)
     }
 }

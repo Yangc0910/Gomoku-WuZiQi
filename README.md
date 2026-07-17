@@ -24,7 +24,16 @@ The files in `docs/reference/` are layout references only. Do not copy their vis
 
 ## Current Status
 
-V1 local App Store candidate is in progress:
+V1.1 visual and gameplay-clarity update:
+
+- New abstract skill-seal App Icon and matching in-app brand mark
+- Layered East Asian match atmosphere with ink mountains, water lines, wood grain, and accessible falling-leaf motion
+- Explicit current-player, turn-count, and placement guidance in classic mode
+- Independent always-visible skill decks for both players
+- Rebuilt dark match setup with readable, category-colored skill cards
+- Refined board, stones, last-move marker, player identity colors, and responsive layouts
+
+The local App Store candidate includes:
 
 - Native SwiftUI project scaffold
 - Classic Gomoku engine

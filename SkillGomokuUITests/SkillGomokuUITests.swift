@@ -33,6 +33,12 @@ final class SkillGomokuUITests: XCTestCase {
         tapStartMatchButton(app)
 
         XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["轻触棋盘交叉点落子"].exists)
+        let classicScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        classicScreenshot.name = "Classic-mode-turn-indicator"
+        classicScreenshot.lifetime = .keepAlways
+        add(classicScreenshot)
+
         tapBoard(app, row: 7, column: 7)
 
         XCTAssertTrue(app.staticTexts["第 2 回合"].waitForExistence(timeout: 5))
@@ -66,6 +72,12 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.buttons["继续"].waitForExistence(timeout: 5))
         app.buttons["继续"].tap()
 
+        XCTAssertTrue(app.staticTexts["双方技能"].waitForExistence(timeout: 5))
+        let setupScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        setupScreenshot.name = "Skill-mode-match-setup"
+        setupScreenshot.lifetime = .keepAlways
+        add(setupScreenshot)
+
         tapStartMatchButton(app)
 
         XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
@@ -75,13 +87,20 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["第 3 回合"].waitForExistence(timeout: 5))
 
         let sandstorm = app.buttons["skill-playerOne-sandstorm"]
+        let opponentSandstorm = app.buttons["skill-playerTwo-sandstorm"]
         XCTAssertTrue(sandstorm.waitForExistence(timeout: 5))
+        XCTAssertTrue(opponentSandstorm.exists, "双方技能栏应同时保持可见")
         XCTAssertTrue(sandstorm.isEnabled)
         sandstorm.tap()
         XCTAssertTrue(app.staticTexts["在棋盘上选择目标"].waitForExistence(timeout: 5))
         tapBoard(app, row: 8, column: 8)
 
         XCTAssertTrue(app.staticTexts["第 4 回合"].waitForExistence(timeout: 5))
+
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = "Skill-mode-dual-player-skill-decks"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
     }
 
     private func launchApp() -> XCUIApplication {

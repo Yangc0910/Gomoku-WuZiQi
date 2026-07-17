@@ -56,8 +56,12 @@ struct PlayerSelectionView: View {
             }
         }
         .onAppear {
-            playerOneID = playerOneID ?? players.first?.id
-            playerTwoID = playerTwoID ?? players.dropFirst().first?.id
+            playerOneID = playerOneID
+                ?? players.first(where: { $0.displayName == "玩家一" })?.id
+                ?? players.first?.id
+            playerTwoID = playerTwoID
+                ?? players.first(where: { $0.displayName == "玩家二" && $0.id != playerOneID })?.id
+                ?? players.first(where: { $0.id != playerOneID })?.id
         }
         .sheet(isPresented: $showingNewPlayer) {
             NavigationStack {
@@ -79,7 +83,7 @@ struct PlayerSelectionView: View {
                                 selection.wrappedValue = player.id
                             } label: {
                                 VStack(spacing: AppSpacing.sm) {
-                                    AvatarView(player: player, size: 64)
+                                    AvatarView(player: player, size: 64, accent: side.themeColor)
                                     Text(player.displayName)
                                         .font(.caption.bold())
                                         .foregroundStyle(AppColor.textPrimary)

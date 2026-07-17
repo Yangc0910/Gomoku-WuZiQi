@@ -14,11 +14,16 @@ struct PrimaryButton: View {
                 .padding(.vertical, 14)
         }
         .buttonStyle(.plain)
-        .foregroundStyle(.white)
+        .foregroundStyle(AppColor.background)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
-                .fill(isDisabled ? Color.gray.opacity(0.35) : AppColor.playerOne)
+                .fill(isDisabled ? AppColor.elevatedSurface : AppColor.accent)
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
+                .stroke(.white.opacity(isDisabled ? 0.04 : 0.18), lineWidth: 1)
+        )
+        .opacity(isDisabled ? 0.55 : 1)
         .disabled(isDisabled)
         .accessibilityLabel(title)
     }
