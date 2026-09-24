@@ -27,7 +27,7 @@ enum AIDifficulty: String, Codable, CaseIterable, Identifiable, Sendable {
         switch self {
         case .easy: 6
         case .medium: 10
-        case .hard: 12
+        case .hard: 10
         }
     }
 }
@@ -101,7 +101,7 @@ struct GomokuAI: Sendable {
                 board: nextBoard,
                 sideToMove: side.opponent,
                 aiSide: side,
-                depth: 2,
+                depth: 1,
                 alpha: -winningScore,
                 beta: winningScore,
                 lastMove: move,
