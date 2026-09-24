@@ -1,11 +1,11 @@
 # App Store Submission Pack
 
-This folder contains copy-ready App Store Connect material for the first iOS submission.
+This folder contains copy-ready App Store Connect material for the iOS 2.0 submission.
 
 ## Files
 
 - `metadata.zh-Hans.md`: Chinese App Store listing copy, keywords, category, age rating notes, and screenshot mapping.
-- `review-notes.zh-Hans.md`: App Review notes explaining the offline two-player flow and camera/photo usage.
+- `review-notes.zh-Hans.md`: App Review notes explaining the offline AI/two-player flows and camera/photo usage.
 - `privacy-policy.zh-Hans.md`: Privacy policy draft to publish at the final Privacy Policy URL.
 - `support.zh-Hans.md`: Support page draft to publish at the final Support URL.
 
@@ -15,6 +15,7 @@ This folder contains copy-ready App Store Connect material for the first iOS sub
 - Publish `privacy-policy.zh-Hans.md` and `support.zh-Hans.md` to public HTTPS URLs.
 - Fill App Privacy as "No, we do not collect data from this app" if the shipped app remains offline-only and uses avatars only on device.
 - Upload a signed Release build through Xcode Organizer or `xcodebuild -exportArchive` after team signing is configured.
+- Capture 2.0 screenshots for the single-player setup and AI match flow; the existing `AppStoreAssets` gameplay screenshots are from 1.1.
 
 References:
 

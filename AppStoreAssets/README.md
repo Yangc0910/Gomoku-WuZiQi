@@ -1,6 +1,6 @@
 # App Store Assets
 
-The screenshots in this folder are captured from the shipping 1.1 app through UI tests. They show the real interface rendered by the Release candidate rather than generated mockups.
+The screenshots in this folder are captured from the shipping 1.1 app through UI tests. They remain valid for the classic and skill flows, but the 2.0 submission should add screenshots of the single-player setup and AI match experience.
 
 `Tools/GenerateMarketingAssets.swift` is retained only as a legacy reference and must not be used to replace the 1.1 screenshots or app icon.
 
