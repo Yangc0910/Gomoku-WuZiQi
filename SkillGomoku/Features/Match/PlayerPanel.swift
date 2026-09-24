@@ -1,14 +1,14 @@
 import SwiftUI
 
 struct PlayerPanel: View {
-    let player: PlayerProfileEntity
+    let player: MatchParticipant
     let side: PlayerSide
     let state: GameState
     let selectedSkill: SkillIdentifier?
     let onSkillTap: ((SkillIdentifier) -> Void)?
 
     init(
-        player: PlayerProfileEntity,
+        player: MatchParticipant,
         side: PlayerSide,
         state: GameState,
         selectedSkill: SkillIdentifier? = nil,
@@ -30,13 +30,17 @@ struct PlayerPanel: View {
                 PlayerStat(title: "顺序", value: side == state.firstPlayer ? "先手" : "后手")
             }
 
-            SkillReserveStrip(
-                state: state,
-                side: side,
-                selectedSkill: selectedSkill,
-                compact: false,
-                onSkillTap: onSkillTap
-            )
+            if state.computerOpponent != nil {
+                aiModeCard
+            } else {
+                SkillReserveStrip(
+                    state: state,
+                    side: side,
+                    selectedSkill: selectedSkill,
+                    compact: false,
+                    onSkillTap: onSkillTap
+                )
+            }
 
             Spacer(minLength: 0)
         }
@@ -59,6 +63,26 @@ struct PlayerPanel: View {
         )
     }
 
+    private var aiModeCard: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+            Label(
+                player.isComputer ? "离线 AI · \(player.computerDifficulty?.title ?? "标准")" : "人机对战",
+                systemImage: player.isComputer ? "cpu.fill" : "hand.tap.fill"
+            )
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(player.isComputer ? AppColor.accent : AppColor.textPrimary)
+            Text(player.isComputer ? "电脑会在本机分析棋局并自动落子。" : "轮到你时，点击棋盘交叉点落子。")
+                .font(.caption)
+                .foregroundStyle(AppColor.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppSpacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+        )
+    }
+
     private var panelGradient: LinearGradient {
         LinearGradient(
             colors: [
@@ -76,7 +100,7 @@ struct PlayerPanel: View {
 }
 
 struct PlayerDock: View {
-    let player: PlayerProfileEntity
+    let player: MatchParticipant
     let side: PlayerSide
     let state: GameState
     let selectedSkill: SkillIdentifier?
@@ -121,14 +145,14 @@ struct PlayerDock: View {
 }
 
 private struct PlayerIdentityHeader: View {
-    let player: PlayerProfileEntity
+    let player: MatchParticipant
     let side: PlayerSide
     let state: GameState
     let avatarSize: CGFloat
 
     var body: some View {
         HStack(spacing: AppSpacing.sm) {
-            AvatarView(player: player, size: avatarSize, accent: side.themeColor)
+            MatchAvatarView(participant: player, size: avatarSize)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(player.displayName)
@@ -146,7 +170,6 @@ private struct PlayerIdentityHeader: View {
             }
 
             Spacer(minLength: AppSpacing.xs)
-
             if state.currentPlayer == side && !state.status.isFinished {
                 Text("行动中")
                     .font(.caption2.weight(.heavy))
@@ -159,6 +182,11 @@ private struct PlayerIdentityHeader: View {
                 Text("\(state.board.coordinates(for: side).count) 子")
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(AppColor.textSecondary)
+            }
+            if let difficulty = player.computerDifficulty {
+                Label("离线 AI · \(difficulty.title)", systemImage: "cpu")
+                    .font(.caption.bold())
+                    .foregroundStyle(AppColor.accent)
             }
         }
     }
@@ -187,7 +215,7 @@ private struct PlayerStat: View {
 }
 
 struct PlayerSummaryCard: View {
-    let player: PlayerProfileEntity
+    let player: MatchParticipant
     let side: PlayerSide
     let state: GameState
 
@@ -204,8 +232,8 @@ struct PlayerSummaryCard: View {
 
 struct TurnBanner: View {
     let state: GameState
-    let playerOne: PlayerProfileEntity
-    let playerTwo: PlayerProfileEntity
+    let playerOne: MatchParticipant
+    let playerTwo: MatchParticipant
 
     var body: some View {
         HStack(spacing: AppSpacing.sm) {
@@ -488,5 +516,34 @@ private struct SkillCard: View {
         if !availability.isUsable { return availability.reason }
         if let remaining = skillState.remainingUses { return "剩余 \(remaining) 次" }
         return "可以使用"
+    }
+}
+
+struct MatchModeStrip: View {
+    let state: GameState
+    let isAIThinking: Bool
+
+    var body: some View {
+        if let opponent = state.computerOpponent {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                Label(
+                    isAIThinking ? "\(opponent.displayName) 正在思考" : "离线 AI · \(opponent.difficulty.title)难度",
+                    systemImage: isAIThinking ? "brain.head.profile" : "cpu.fill"
+                )
+                .font(.subheadline.bold())
+                .foregroundStyle(isAIThinking ? AppColor.accent : AppColor.textPrimary)
+                Text("AI 完全在设备上运行，不需要网络连接。")
+                    .font(.caption)
+                    .foregroundStyle(AppColor.textSecondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(AppSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
+                    .fill(AppColor.accent.opacity(0.10))
+            )
+        } else {
+            EmptyView()
+        }
     }
 }

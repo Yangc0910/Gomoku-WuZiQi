@@ -216,8 +216,8 @@ struct MatchSetupView: View {
         if canStart {
             NavigationLink {
                 MatchView(
-                    playerOne: playerOne,
-                    playerTwo: playerTwo,
+                    playerOne: MatchParticipant(profile: playerOne),
+                    playerTwo: MatchParticipant(profile: playerTwo),
                     existingMatch: nil,
                     initialState: makeInitialState(),
                     soundEnabled: soundEnabled,
@@ -264,6 +264,7 @@ struct MatchSetupView: View {
     private var modeAccent: Color {
         switch mode {
         case .classic: AppColor.textPrimary
+        case .singlePlayer: AppColor.success
         case .standardSkills: AppColor.accent
         case .advancedSkills: Color(red: 0.64, green: 0.52, blue: 1.0)
         }

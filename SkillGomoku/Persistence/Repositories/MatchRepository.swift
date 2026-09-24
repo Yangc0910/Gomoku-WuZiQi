@@ -128,22 +128,22 @@ final class MatchRepository {
     }
 
     private func updateStats(playerOneID: UUID, playerTwoID: UUID, winner: PlayerSide?) throws {
-        guard let playerOne = try player(id: playerOneID),
-              let playerTwo = try player(id: playerTwoID) else { return }
+        let playerOne = try player(id: playerOneID)
+        let playerTwo = try player(id: playerTwoID)
 
-        playerOne.matchesPlayed += 1
-        playerTwo.matchesPlayed += 1
+        playerOne?.matchesPlayed += 1
+        playerTwo?.matchesPlayed += 1
 
         switch winner {
         case .some(.playerOne):
-            playerOne.wins += 1
-            playerTwo.losses += 1
+            playerOne?.wins += 1
+            playerTwo?.losses += 1
         case .some(.playerTwo):
-            playerTwo.wins += 1
-            playerOne.losses += 1
+            playerTwo?.wins += 1
+            playerOne?.losses += 1
         case nil:
-            playerOne.draws += 1
-            playerTwo.draws += 1
+            playerOne?.draws += 1
+            playerTwo?.draws += 1
         }
     }
 }

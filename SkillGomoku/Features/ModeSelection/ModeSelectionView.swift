@@ -10,14 +10,14 @@ struct ModeSelectionView: View {
                         Text("选择玩法")
                             .font(.system(size: 34, weight: .bold, design: .rounded))
                             .foregroundStyle(AppColor.textPrimary)
-                        Text("三种规则，共用一块 15 × 15 棋盘。")
+                        Text("四种玩法，共用一块 15 × 15 棋盘。")
                             .font(.subheadline)
                             .foregroundStyle(AppColor.textSecondary)
                     }
 
                     ForEach(Array(GameMode.allCases.enumerated()), id: \.element.id) { index, mode in
                         NavigationLink {
-                            PlayerSelectionView(mode: mode)
+                            destination(for: mode)
                         } label: {
                             ModeCard(mode: mode, index: index + 1)
                         }
@@ -27,7 +27,7 @@ struct ModeSelectionView: View {
                     HStack(spacing: AppSpacing.sm) {
                         Image(systemName: "person.2.fill")
                             .foregroundStyle(AppColor.accent)
-                        Text("所有模式均为同机双人对战，无需联网。")
+                        Text("支持同机双人和离线人机对战，无需联网。")
                             .font(.caption)
                             .foregroundStyle(AppColor.textSecondary)
                     }
@@ -38,6 +38,16 @@ struct ModeSelectionView: View {
         }
         .navigationTitle("模式")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private func destination(for mode: GameMode) -> some View {
+        switch mode {
+        case .singlePlayer:
+            SinglePlayerSetupView()
+        default:
+            PlayerSelectionView(mode: mode)
+        }
     }
 }
 
@@ -100,6 +110,7 @@ private struct ModeCard: View {
     private var accent: Color {
         switch mode {
         case .classic: AppColor.textPrimary
+        case .singlePlayer: AppColor.success
         case .standardSkills: AppColor.accent
         case .advancedSkills: Color(red: 0.64, green: 0.52, blue: 1.0)
         }
@@ -108,6 +119,7 @@ private struct ModeCard: View {
     private var detail: String {
         switch mode {
         case .classic: "纯规则 · 专注落子"
+        case .singlePlayer: "3 档难度 · 离线对弈"
         case .standardSkills: "5 项固定技能 · 轻松上手"
         case .advancedSkills: "9 选 3 · 组合策略"
         }
