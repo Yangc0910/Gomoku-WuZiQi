@@ -12,6 +12,12 @@ final class SkillGomokuUITests: XCTestCase {
         app.buttons["玩家档案"].tap()
 
         XCTAssertTrue(app.navigationBars["玩家档案"].waitForExistence(timeout: 5))
+
+        let profilesScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        profilesScreenshot.name = "Player-profiles-modern-list"
+        profilesScreenshot.lifetime = .keepAlways
+        add(profilesScreenshot)
+
         app.buttons["新建玩家"].tap()
 
         XCTAssertTrue(app.navigationBars["新建玩家"].waitForExistence(timeout: 5))
