@@ -1,0 +1,30 @@
+name: iOS tests
+
+on:
+  push:
+    branches:
+      - main
+      - codex/**
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ios-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Run unit tests
+        run: >-
+          xcodebuild test
+          -project SkillGomoku.xcodeproj
+          -scheme SkillGomoku
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest'
+          CODE_SIGNING_ALLOWED=NO

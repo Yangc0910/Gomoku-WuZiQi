@@ -4,8 +4,8 @@ import SwiftUI
 struct MatchView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
-    let playerOne: PlayerProfileEntity
-    let playerTwo: PlayerProfileEntity
+    let playerOne: MatchParticipant
+    let playerTwo: MatchParticipant
     let existingMatch: PersistedMatchEntity?
     let initialState: GameState?
     let soundEnabled: Bool
@@ -15,8 +15,8 @@ struct MatchView: View {
     @State private var showingPause = false
 
     init(
-        playerOne: PlayerProfileEntity,
-        playerTwo: PlayerProfileEntity,
+        playerOne: MatchParticipant,
+        playerTwo: MatchParticipant,
         existingMatch: PersistedMatchEntity?,
         initialState: GameState? = nil,
         soundEnabled: Bool = true,
@@ -126,6 +126,8 @@ struct MatchView: View {
                 ) { coordinate in
                     viewModel.handleBoardTap(coordinate)
                 }
+                .allowsHitTesting(viewModel.acceptsBoardInput)
+                thinkingIndicator(viewModel)
                 statusText(viewModel: viewModel)
             }
             .frame(maxWidth: 680)
@@ -163,7 +165,10 @@ struct MatchView: View {
             ) { coordinate in
                 viewModel.handleBoardTap(coordinate)
             }
+            .allowsHitTesting(viewModel.acceptsBoardInput)
 
+            thinkingIndicator(viewModel)
+            MatchModeStrip(state: viewModel.state, isAIThinking: viewModel.isAIThinking)
             statusText(viewModel: viewModel)
 
             PlayerDock(
@@ -184,6 +189,7 @@ struct MatchView: View {
     private func statusText(viewModel: MatchViewModel) -> some View {
         let isError = viewModel.errorMessage != nil
         let message = viewModel.errorMessage
+            ?? (viewModel.isAIThinking ? "电脑正在分析棋局…" : nil)
             ?? viewModel.skillInstruction
             ?? "轻触棋盘交叉点落子"
 
@@ -205,6 +211,20 @@ struct MatchView: View {
             if !newValue {
                 viewModel?.cancelSkillSelection()
             }
+        }
+    }
+
+    @ViewBuilder
+    private func thinkingIndicator(_ viewModel: MatchViewModel) -> some View {
+        if viewModel.isAIThinking {
+            HStack(spacing: AppSpacing.sm) {
+                ProgressView()
+                    .tint(AppColor.accent)
+                Text("电脑正在分析棋局…")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(AppColor.textSecondary)
+            }
+            .accessibilityElement(children: .combine)
         }
     }
 
@@ -237,6 +257,7 @@ struct MatchView: View {
             soundEnabled: soundEnabled,
             hapticsEnabled: hapticsEnabled
         )
+        viewModel?.startComputerTurnIfNeeded()
     }
 }
 

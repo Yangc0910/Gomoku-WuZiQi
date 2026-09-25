@@ -17,7 +17,7 @@ struct HomeView: View {
                     VStack(alignment: .leading, spacing: AppSpacing.lg) {
                         HStack(alignment: .center, spacing: AppSpacing.md) {
                             VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                                Text("VERSION 1.1")
+                                Text("VERSION 2.0")
                                     .font(.caption2.weight(.heavy))
                                     .tracking(1.5)
                                     .foregroundStyle(AppColor.accent)
@@ -29,7 +29,7 @@ struct HomeView: View {
                                     .foregroundStyle(AppColor.textPrimary)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.72)
-                                Text("一盘好棋，也可以有意外。")
+                                Text("双人切磋，或随时挑战离线 AI。")
                                     .font(.subheadline)
                                     .foregroundStyle(AppColor.textSecondary)
                             }
@@ -47,7 +47,7 @@ struct HomeView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("开始游戏")
                                         .font(.headline)
-                                    Text("选择经典、技能或高阶玩法")
+                                    Text("选择经典、人机、技能或高阶玩法")
                                         .font(.caption)
                                         .opacity(0.7)
                                 }
@@ -61,7 +61,7 @@ struct HomeView: View {
                         .accessibilityLabel("开始游戏")
 
                         if let match = unfinishedMatches.first,
-                           let pair = playersFor(match: match) {
+                           let pair = participantsFor(match: match) {
                             NavigationLink {
                                 MatchView(playerOne: pair.0, playerTwo: pair.1, existingMatch: match)
                             } label: {
@@ -154,9 +154,20 @@ struct HomeView: View {
         .preferredColorScheme(.dark)
     }
 
-    private func playersFor(match: PersistedMatchEntity) -> (PlayerProfileEntity, PlayerProfileEntity)? {
-        guard let one = players.first(where: { $0.id == match.playerOneID }),
-              let two = players.first(where: { $0.id == match.playerTwoID }) else {
+    private func participantsFor(match: PersistedMatchEntity) -> (MatchParticipant, MatchParticipant)? {
+        guard let state = try? MatchRepository(context: modelContext).decodedState(from: match) else {
+            return nil
+        }
+
+        func participant(for side: PlayerSide, id: UUID) -> MatchParticipant? {
+            if let opponent = state.computerOpponent, opponent.side == side {
+                return .computer(opponent)
+            }
+            return players.first(where: { $0.id == id }).map { MatchParticipant(profile: $0) }
+        }
+
+        guard let one = participant(for: .playerOne, id: match.playerOneID),
+              let two = participant(for: .playerTwo, id: match.playerTwoID) else {
             return nil
         }
         return (one, two)
@@ -387,6 +398,7 @@ private struct RecordRow: View {
     }
 
     private func playerName(_ id: UUID) -> String {
-        players.first { $0.id == id }?.displayName ?? "玩家"
+        if id == MatchParticipant.computerID { return "电脑" }
+        return players.first { $0.id == id }?.displayName ?? "玩家"
     }
 }

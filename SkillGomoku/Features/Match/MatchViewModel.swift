@@ -13,6 +13,7 @@ final class MatchViewModel {
     var selectedSkill: SkillIdentifier?
     var selectedMoveOrigin: Coordinate?
     var pendingConfirmationSkill: SkillIdentifier?
+    private(set) var isAIThinking = false
     private(set) var persistedMatchID: UUID?
 
     private let engine = RuleEngine()
@@ -23,9 +24,16 @@ final class MatchViewModel {
     private let hapticsEnabled: Bool
     private var didRecordCompletion = false
     private var history: [GameState] = []
+    private var aiTask: Task<Void, Never>?
+    private var aiGeneration = 0
 
     var canUndo: Bool {
-        !history.isEmpty && !state.status.isFinished
+        !history.isEmpty && !state.status.isFinished && !isAIThinking
+    }
+
+    var acceptsBoardInput: Bool {
+        guard !state.status.isFinished, !isAIThinking else { return false }
+        return state.computerOpponent?.side != state.currentPlayer
     }
 
     var targetHighlights: Set<Coordinate> {
@@ -67,10 +75,20 @@ final class MatchViewModel {
 
     @discardableResult
     func placeStone(at coordinate: Coordinate, side: PlayerSide) -> Bool {
-        apply(.placeStone(coordinate: coordinate, side: side))
+        guard acceptsBoardInput else {
+            if state.computerOpponent?.side == state.currentPlayer {
+                errorMessage = "电脑正在思考，请稍候"
+            }
+            return false
+        }
+        return apply(.placeStone(coordinate: coordinate, side: side))
     }
 
     func beginSkill(_ skill: SkillIdentifier, side: PlayerSide) {
+        guard acceptsBoardInput else {
+            errorMessage = "电脑正在思考，请稍候"
+            return
+        }
         guard side == state.currentPlayer else {
             errorMessage = "等待对手回合"
             return
@@ -162,8 +180,47 @@ final class MatchViewModel {
         apply(.useSkill(skill: skill, side: state.currentPlayer, target: target))
     }
 
+    func startComputerTurnIfNeeded() {
+        guard !isAIThinking,
+              !state.status.isFinished,
+              let opponent = state.computerOpponent,
+              state.currentPlayer == opponent.side else {
+            return
+        }
+
+        isAIThinking = true
+        errorMessage = nil
+        aiGeneration += 1
+        let generation = aiGeneration
+        let snapshot = state
+
+        aiTask = Task { [weak self] in
+            let move = await Task.detached(priority: .userInitiated) {
+                GomokuAI().chooseMove(in: snapshot)
+            }.value
+            try? await Task.sleep(nanoseconds: 280_000_000)
+
+            guard let self,
+                  !Task.isCancelled,
+                  generation == self.aiGeneration,
+                  self.state == snapshot else {
+                return
+            }
+
+            self.isAIThinking = false
+            guard let move else {
+                self.errorMessage = "电脑暂时找不到合法落点"
+                return
+            }
+            _ = self.apply(
+                .placeStone(coordinate: move, side: opponent.side),
+                startsComputerTurn: false
+            )
+        }
+    }
+
     @discardableResult
-    private func apply(_ action: GameAction) -> Bool {
+    private func apply(_ action: GameAction, startsComputerTurn: Bool = true) -> Bool {
         do {
             let previousState = state
             state = try engine.applying(action, to: state)
@@ -176,6 +233,8 @@ final class MatchViewModel {
             if state.status.isFinished {
                 try recordCompletionIfNeeded(matchID: match.id)
                 finishedMatch = state.status
+            } else if startsComputerTurn {
+                startComputerTurnIfNeeded()
             }
             playFeedback()
             return true
@@ -186,7 +245,16 @@ final class MatchViewModel {
     }
 
     func undoLastMove() {
-        guard canUndo, let previous = history.popLast() else { return }
+        guard canUndo else { return }
+        aiGeneration += 1
+        aiTask?.cancel()
+        aiTask = nil
+        isAIThinking = false
+
+        guard var previous = history.popLast() else { return }
+        if state.mode == .singlePlayer, let fullTurnStart = history.popLast() {
+            previous = fullTurnStart
+        }
         do {
             state = previous
             finishedMatch = nil
@@ -195,6 +263,7 @@ final class MatchViewModel {
             pendingConfirmationSkill = nil
             errorMessage = nil
             try save()
+            startComputerTurnIfNeeded()
         } catch {
             errorMessage = error.localizedDescription
         }

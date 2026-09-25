@@ -12,6 +12,7 @@ struct GameState: Codable, Equatable, Sendable {
     var removedStones: [RemovedStone]
     var blockedCoordinates: [Coordinate: PlayerSide]
     var protectedCoordinates: [Coordinate: Int]
+    var computerOpponent: ComputerOpponent?
 
     init(
         board: Board = Board(),
@@ -24,7 +25,8 @@ struct GameState: Codable, Equatable, Sendable {
         skillStates: [PlayerSide: [SkillState]] = [:],
         removedStones: [RemovedStone] = [],
         blockedCoordinates: [Coordinate: PlayerSide] = [:],
-        protectedCoordinates: [Coordinate: Int] = [:]
+        protectedCoordinates: [Coordinate: Int] = [:],
+        computerOpponent: ComputerOpponent? = nil
     ) {
         self.board = board
         self.currentPlayer = currentPlayer
@@ -37,6 +39,7 @@ struct GameState: Codable, Equatable, Sendable {
         self.removedStones = removedStones
         self.blockedCoordinates = blockedCoordinates
         self.protectedCoordinates = protectedCoordinates
+        self.computerOpponent = computerOpponent
     }
 
     static func newClassic(firstPlayer: PlayerSide) -> GameState {
@@ -51,7 +54,7 @@ struct GameState: Codable, Equatable, Sendable {
     ) -> GameState {
         let identifiers: [SkillIdentifier]
         switch mode {
-        case .classic:
+        case .classic, .singlePlayer:
             identifiers = []
         case .standardSkills:
             identifiers = SkillIdentifier.standardLoadout
@@ -80,5 +83,14 @@ struct GameState: Codable, Equatable, Sendable {
 
     func skillState(for skill: SkillIdentifier, side: PlayerSide) -> SkillState? {
         skillStates[side]?.first { $0.id == skill }
+    }
+
+    static func newSinglePlayer(humanSide: PlayerSide, difficulty: AIDifficulty) -> GameState {
+        GameState(
+            currentPlayer: .playerOne,
+            firstPlayer: .playerOne,
+            mode: .singlePlayer,
+            computerOpponent: ComputerOpponent(side: humanSide.opponent, difficulty: difficulty)
+        )
     }
 }

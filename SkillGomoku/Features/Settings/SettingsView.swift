@@ -18,6 +18,7 @@ struct SettingsView: View {
 
             Section("隐私") {
                 Text("玩家照片只保存在本机，用于设置本机玩家头像，不会上传服务器。")
+                Text("人机对战的棋局分析完全在本机完成，不会上传棋谱。")
                 Text("相机权限用途：用于设置本机玩家头像。")
             }
 
@@ -30,8 +31,8 @@ struct SettingsView: View {
             }
 
             Section("版本") {
-                LabeledContent("当前版本", value: "1.1")
-                LabeledContent("可用模式", value: "经典 / 技能 / 高阶技能")
+                LabeledContent("当前版本", value: "2.0")
+                LabeledContent("可用模式", value: "经典 / 人机 / 技能 / 高阶技能")
             }
         }
         .navigationTitle("设置")

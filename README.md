@@ -1,22 +1,24 @@
 # Skill Gomoku / 技能五子棋
 
-A modern same-device family Gomoku game for iPhone and iPad.
+A modern offline Gomoku game for iPhone and iPad, with local two-player and computer-opponent play.
 
 ## Product Direction
 
 - Native SwiftUI Universal App
 - Same-device two-player play
+- Offline single-player AI with three difficulty levels
 - Local player names and avatars
 - Classic Gomoku
 - Standard Skill Gomoku
 - Advanced Skill Gomoku
-- No bot, networking, account, ads, or backend in V1
+- No networking, account, ads, or backend
 
 ## Planning Documents
 
 - [Product Requirements](docs/PRD.md)
 - [Codex Kickoff Prompt](CODEX_KICKOFF_PROMPT.md)
 - [GitHub Setup](GITHUB_SETUP.md)
+- [2.0 AI Mode Design](docs/V2_AI_MODE.md)
 
 ## Reference Images
 
@@ -24,7 +26,7 @@ The files in `docs/reference/` are layout references only. Do not copy their vis
 
 ## Current Status
 
-V1.1 visual and gameplay-clarity update:
+Version 2.0 builds on the V1.1 visual and gameplay-clarity update:
 
 - New abstract skill-seal App Icon and matching in-app brand mark
 - Layered East Asian match atmosphere with ink mountains, water lines, wood grain, and accessible falling-leaf motion
@@ -33,7 +35,7 @@ V1.1 visual and gameplay-clarity update:
 - Rebuilt dark match setup with readable, category-colored skill cards
 - Refined board, stones, last-move marker, player identity colors, and responsive layouts
 
-The local App Store candidate includes:
+The current app includes:
 
 - Native SwiftUI project scaffold
 - Classic Gomoku engine
@@ -45,3 +47,6 @@ The local App Store candidate includes:
 - Completed match records and local win/loss/draw stats
 - In-match undo, placement preview, invalid-position feedback, sound, and haptics
 - App Store metadata, privacy text, review notes, icons, and screenshot assets
+- Offline computer opponent with easy, medium, and hard difficulty
+- Human first/second-player selection and automatic AI turns
+- Saved/resumable single-player matches and human-only profile statistics
