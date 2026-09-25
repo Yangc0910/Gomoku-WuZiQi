@@ -122,6 +122,12 @@ final class SkillGomokuUITests: XCTestCase {
 
         app.buttons["开始游戏"].tap()
         XCTAssertTrue(app.buttons["mode-computer-classic"].waitForExistence(timeout: 5))
+
+        let modeScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        modeScreenshot.name = "Opponent-first-mode-selection"
+        modeScreenshot.lifetime = .keepAlways
+        add(modeScreenshot)
+
         app.buttons["mode-computer-classic"].tap()
 
         XCTAssertTrue(app.navigationBars["人机对战设置"].waitForExistence(timeout: 5))

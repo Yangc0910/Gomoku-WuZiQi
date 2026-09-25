@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - codex/v2-ai-screenshots
+      - codex/**
     paths:
       - SkillGomoku/**
       - SkillGomokuUITests/**
@@ -44,6 +44,7 @@ jobs:
           -destination 'platform=iOS Simulator,name=${{ matrix.device }},OS=latest'
           -resultBundlePath ScreenshotResults.xcresult
           -only-testing:SkillGomokuUITests/SkillGomokuUITests/testSinglePlayerAIFlowAndScreenshots
+          -only-testing:SkillGomokuUITests/SkillGomokuUITests/testSinglePlayerSkillModeShowsBothSkillDecks
           CODE_SIGNING_ALLOWED=NO
       - name: Export screenshot attachments
         if: always()
