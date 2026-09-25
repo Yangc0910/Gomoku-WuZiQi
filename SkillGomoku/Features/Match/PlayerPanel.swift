@@ -23,7 +23,7 @@ struct PlayerPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.lg) {
-            PlayerIdentityHeader(player: player, side: side, state: state, avatarSize: 64)
+            PlayerIdentityHeader(player: player, side: side, state: state, avatarSize: 56)
 
             HStack(spacing: AppSpacing.sm) {
                 PlayerStat(title: "棋子", value: "\(state.board.coordinates(for: side).count)")
@@ -183,6 +183,8 @@ private struct PlayerIdentityHeader: View {
                 Text("行动中")
                     .font(.caption2.weight(.heavy))
                     .foregroundStyle(AppColor.background)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 6)
                     .background(Capsule().fill(side.themeColor))
@@ -191,6 +193,8 @@ private struct PlayerIdentityHeader: View {
                 Text("\(state.board.coordinates(for: side).count) 子")
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(AppColor.textSecondary)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
             }
         }
     }
