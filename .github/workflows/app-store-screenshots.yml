@@ -55,7 +55,7 @@ jobs:
             --output-path screenshot-output
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-store-${{ matrix.folder }}
           path: screenshot-output

@@ -70,7 +70,7 @@ struct SinglePlayerSetupView: View {
                 Text(mode.ruleTitle)
                     .font(.title2.bold())
                     .foregroundStyle(AppColor.textPrimary)
-                Label("离线人机 · AI 会使用本局技能", systemImage: "cpu.fill")
+                Label(pageSubtitle, systemImage: "cpu.fill")
                     .font(.subheadline)
                     .foregroundStyle(AppColor.textSecondary)
             }
@@ -310,6 +310,12 @@ struct SinglePlayerSetupView: View {
 
     private var availableSkills: [SkillIdentifier] {
         mode == .standardSkills ? SkillIdentifier.standardLoadout : SkillIdentifier.allCases
+    }
+
+    private var pageSubtitle: String {
+        mode.supportsSkills
+            ? "离线人机 · AI 会使用本局技能"
+            : "离线人机 · 三档难度"
     }
 
     private var canStart: Bool {

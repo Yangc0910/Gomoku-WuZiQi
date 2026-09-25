@@ -13,6 +13,7 @@ final class MatchViewModel {
     var selectedSkill: SkillIdentifier?
     var selectedMoveOrigin: Coordinate?
     var pendingConfirmationSkill: SkillIdentifier?
+    var noticeMessage: String?
     private(set) var isAIThinking = false
     private(set) var persistedMatchID: UUID?
 
@@ -101,6 +102,7 @@ final class MatchViewModel {
         }
 
         selectedMoveOrigin = nil
+        noticeMessage = nil
         switch skill.targetKind {
         case .none:
             selectedSkill = nil
@@ -212,7 +214,11 @@ final class MatchViewModel {
                 self.errorMessage = "电脑暂时找不到合法行动"
                 return
             }
-            _ = self.apply(action, startsComputerTurn: false)
+            let didApply = self.apply(action, startsComputerTurn: false)
+            if didApply,
+               case let .useSkill(skill, _, _) = action {
+                self.noticeMessage = "\(opponent.displayName) 使用了「\(skill.title)」"
+            }
         }
     }
 
@@ -226,6 +232,7 @@ final class MatchViewModel {
             selectedMoveOrigin = nil
             pendingConfirmationSkill = nil
             errorMessage = nil
+            noticeMessage = nil
             let match = try save()
             if state.status.isFinished {
                 try recordCompletionIfNeeded(matchID: match.id)
@@ -259,6 +266,7 @@ final class MatchViewModel {
             selectedMoveOrigin = nil
             pendingConfirmationSkill = nil
             errorMessage = nil
+            noticeMessage = nil
             try save()
             startComputerTurnIfNeeded()
         } catch {

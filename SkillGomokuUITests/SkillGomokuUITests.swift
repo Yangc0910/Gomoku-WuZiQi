@@ -165,7 +165,9 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.buttons["mode-computer-standardSkills"].waitForExistence(timeout: 5))
         app.buttons["mode-computer-standardSkills"].tap()
 
-        XCTAssertTrue(app.staticTexts["人机技能"].waitForExistence(timeout: 5))
+        let skillSection = app.staticTexts["人机技能"]
+        XCTAssertTrue(skillSection.waitForExistence(timeout: 5))
+        reveal(skillSection, in: app)
         let setupScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         setupScreenshot.name = "AI-skill-mode-setup"
         setupScreenshot.lifetime = .keepAlways
@@ -180,6 +182,11 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.buttons["skill-playerTwo-sandstorm"].exists)
         tapBoard(app, row: 7, column: 7)
         XCTAssertTrue(app.staticTexts["第 3 回合"].waitForExistence(timeout: 8))
+
+        let matchScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        matchScreenshot.name = "AI-skill-mode-match"
+        matchScreenshot.lifetime = .keepAlways
+        add(matchScreenshot)
     }
 
     private func launchApp() -> XCUIApplication {
