@@ -192,7 +192,7 @@ struct MatchView: View {
             ?? (viewModel.isAIThinking ? "电脑正在分析棋局…" : nil)
             ?? viewModel.skillInstruction
             ?? viewModel.noticeMessage
-            ?? "轻触棋盘交叉点落子"
+            ?? "轻触落子，按住滑动可校准"
 
         let statusIcon = isError
             ? "exclamationmark.circle.fill"
