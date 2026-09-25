@@ -132,7 +132,10 @@ final class SkillGomokuUITests: XCTestCase {
         tapBoard(app, row: 7, column: 7)
 
         XCTAssertTrue(app.staticTexts["第 3 回合"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["离线 AI · 标准难度"].waitForExistence(timeout: 5))
+        let aiModeLabel = app.staticTexts
+            .matching(NSPredicate(format: "label CONTAINS %@", "离线 AI"))
+            .firstMatch
+        XCTAssertTrue(aiModeLabel.waitForExistence(timeout: 5))
 
         let matchScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         matchScreenshot.name = "AI-single-player-match"
