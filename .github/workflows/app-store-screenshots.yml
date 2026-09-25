@@ -1,0 +1,62 @@
+name: App Store screenshots
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/v2-ai-screenshots
+    paths:
+      - SkillGomoku/**
+      - SkillGomokuUITests/**
+      - SkillGomoku.xcodeproj/**
+      - .github/workflows/app-store-screenshots.yml
+
+concurrency:
+  group: app-store-screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    name: Capture ${{ matrix.label }}
+    runs-on: macos-15
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: iPhone 6.9-inch
+            device: iPhone 16 Pro Max
+            folder: iphone-6.9
+          - label: iPad 13-inch
+            device: iPad Pro 13-inch (M4)
+            folder: ipad-13
+    steps:
+      - uses: actions/checkout@v5
+      - name: Show Xcode and simulator inventory
+        run: |
+          xcodebuild -version
+          xcrun simctl list devices available
+      - name: Capture single-player screenshots
+        run: >-
+          xcodebuild test
+          -project SkillGomoku.xcodeproj
+          -scheme SkillGomokuScreenshots
+          -destination 'platform=iOS Simulator,name=${{ matrix.device }},OS=latest'
+          -resultBundlePath ScreenshotResults.xcresult
+          -only-testing:SkillGomokuUITests/SkillGomokuUITests/testSinglePlayerAIFlowAndScreenshots
+          CODE_SIGNING_ALLOWED=NO
+      - name: Export screenshot attachments
+        if: always()
+        run: |
+          mkdir -p screenshot-output
+          xcrun xcresulttool export attachments \
+            --path ScreenshotResults.xcresult \
+            --output-path screenshot-output
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-store-${{ matrix.folder }}
+          path: screenshot-output
+          if-no-files-found: error
+          retention-days: 14

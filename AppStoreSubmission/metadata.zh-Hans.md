@@ -54,7 +54,7 @@
 
 ## 截图映射
 
-以下现有截图来自 1.1 界面，可继续展示双人和技能玩法；提交 2.0 前应补充至少一张人机设置页和一张 AI 对局页截图。
+截图包含原有双人/技能玩法，以及由 2.0 UI 测试在真实模拟器尺寸上捕获的人机设置页和 AI 对局页。
 
 - App Icon 预览：`AppStoreAssets/app-icon/app-icon-1024.png`
 - iPhone 6.5 英寸：
@@ -65,10 +65,14 @@
   - `AppStoreAssets/iphone-6.9/01-core-gameplay.png`
   - `AppStoreAssets/iphone-6.9/02-skill-mode.png`
   - `AppStoreAssets/iphone-6.9/03-match-setup.png`
+  - `AppStoreAssets/iphone-6.9/04-ai-setup.png`
+  - `AppStoreAssets/iphone-6.9/05-ai-match.png`
 - iPad 13 英寸：
   - `AppStoreAssets/ipad-13/01-core-gameplay.png`
   - `AppStoreAssets/ipad-13/02-skill-mode.png`
   - `AppStoreAssets/ipad-13/03-match-setup.png`
+  - `AppStoreAssets/ipad-13/04-ai-setup.png`
+  - `AppStoreAssets/ipad-13/05-ai-match.png`
 
 ## App Privacy 建议
 

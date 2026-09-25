@@ -23,7 +23,7 @@ struct PlayerPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.lg) {
-            PlayerIdentityHeader(player: player, side: side, state: state, avatarSize: 64)
+            PlayerIdentityHeader(player: player, side: side, state: state, avatarSize: 56)
 
             HStack(spacing: AppSpacing.sm) {
                 PlayerStat(title: "棋子", value: "\(state.board.coordinates(for: side).count)")
@@ -159,6 +159,7 @@ private struct PlayerIdentityHeader: View {
                     .font(avatarSize > 50 ? .title3.bold() : .subheadline.bold())
                     .foregroundStyle(AppColor.textPrimary)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.72)
                 HStack(spacing: AppSpacing.xs) {
                     Circle()
                         .fill(side.themeColor)
@@ -167,13 +168,23 @@ private struct PlayerIdentityHeader: View {
                         .font(.caption2)
                         .foregroundStyle(AppColor.textSecondary)
                 }
+                if let difficulty = player.computerDifficulty {
+                    Label("离线 AI · \(difficulty.title)", systemImage: "cpu")
+                        .font(.caption2.bold())
+                        .foregroundStyle(AppColor.accent)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
+                }
             }
+            .layoutPriority(1)
 
             Spacer(minLength: AppSpacing.xs)
             if state.currentPlayer == side && !state.status.isFinished {
                 Text("行动中")
                     .font(.caption2.weight(.heavy))
                     .foregroundStyle(AppColor.background)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 6)
                     .background(Capsule().fill(side.themeColor))
@@ -182,11 +193,8 @@ private struct PlayerIdentityHeader: View {
                 Text("\(state.board.coordinates(for: side).count) 子")
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(AppColor.textSecondary)
-            }
-            if let difficulty = player.computerDifficulty {
-                Label("离线 AI · \(difficulty.title)", systemImage: "cpu")
-                    .font(.caption.bold())
-                    .foregroundStyle(AppColor.accent)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
             }
         }
     }

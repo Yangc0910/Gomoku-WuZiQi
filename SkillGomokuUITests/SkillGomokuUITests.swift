@@ -109,6 +109,40 @@ final class SkillGomokuUITests: XCTestCase {
         add(screenshot)
     }
 
+    func testSinglePlayerAIFlowAndScreenshots() {
+        let app = launchApp()
+
+        app.buttons["开始游戏"].tap()
+        XCTAssertTrue(app.staticTexts["人机单机对战"].waitForExistence(timeout: 5))
+        app.staticTexts["人机单机对战"].tap()
+
+        XCTAssertTrue(app.navigationBars["人机对战"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["电脑难度"].exists)
+
+        let setupScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        setupScreenshot.name = "AI-single-player-setup"
+        setupScreenshot.lifetime = .keepAlways
+        add(setupScreenshot)
+
+        let startButton = app.buttons["start-single-player-match"]
+        XCTAssertTrue(startButton.waitForExistence(timeout: 5))
+        startButton.tap()
+
+        XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
+        tapBoard(app, row: 7, column: 7)
+
+        XCTAssertTrue(app.staticTexts["第 3 回合"].waitForExistence(timeout: 8))
+        let aiModeLabel = app.staticTexts
+            .matching(NSPredicate(format: "label CONTAINS %@", "离线 AI"))
+            .firstMatch
+        XCTAssertTrue(aiModeLabel.waitForExistence(timeout: 5))
+
+        let matchScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        matchScreenshot.name = "AI-single-player-match"
+        matchScreenshot.lifetime = .keepAlways
+        add(matchScreenshot)
+    }
+
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["UITEST_IN_MEMORY_STORE"] = "1"

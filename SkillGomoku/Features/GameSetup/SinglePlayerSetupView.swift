@@ -71,6 +71,7 @@ struct SinglePlayerSetupView: View {
                         } label: {
                             Label("挑战 " + (state.computerOpponent?.displayName ?? "电脑"), systemImage: "play.fill")
                         }
+                        .accessibilityIdentifier("start-single-player-match")
                     }
                 }
             }
