@@ -194,14 +194,11 @@ struct MatchView: View {
             ?? viewModel.noticeMessage
             ?? "轻触棋盘交叉点落子"
 
-        let statusIcon: String
-        if isError {
-            statusIcon = "exclamationmark.circle.fill"
-        } else if viewModel.noticeMessage != nil {
-            statusIcon = "sparkles"
-        } else {
-            statusIcon = viewModel.selectedSkill == nil ? "hand.tap.fill" : "scope"
-        }
+        let statusIcon = isError
+            ? "exclamationmark.circle.fill"
+            : (viewModel.noticeMessage != nil
+                ? "sparkles"
+                : (viewModel.selectedSkill == nil ? "hand.tap.fill" : "scope"))
 
         HStack(spacing: AppSpacing.xs) {
             Image(systemName: statusIcon)
