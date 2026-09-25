@@ -15,7 +15,7 @@ This folder contains copy-ready App Store Connect material for the iOS 2.0 submi
 - Publish `privacy-policy.zh-Hans.md` and `support.zh-Hans.md` to public HTTPS URLs.
 - Fill App Privacy as "No, we do not collect data from this app" if the shipped app remains offline-only and uses avatars only on device.
 - Upload a signed Release build through Xcode Organizer or `xcodebuild -exportArchive` after team signing is configured.
-- Review and upload the generated 2.0 single-player setup and AI match screenshots from `AppStoreAssets`.
+- Review and upload the generated 2.0 mode-selection, classic AI, and skill-enabled AI screenshots from `AppStoreAssets`.
 
 References:
 

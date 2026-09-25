@@ -13,6 +13,7 @@ final class MatchViewModel {
     var selectedSkill: SkillIdentifier?
     var selectedMoveOrigin: Coordinate?
     var pendingConfirmationSkill: SkillIdentifier?
+    var noticeMessage: String?
     private(set) var isAIThinking = false
     private(set) var persistedMatchID: UUID?
 
@@ -101,6 +102,7 @@ final class MatchViewModel {
         }
 
         selectedMoveOrigin = nil
+        noticeMessage = nil
         switch skill.targetKind {
         case .none:
             selectedSkill = nil
@@ -195,8 +197,8 @@ final class MatchViewModel {
         let snapshot = state
 
         aiTask = Task { [weak self] in
-            let move = await Task.detached(priority: .userInitiated) {
-                GomokuAI().chooseMove(in: snapshot)
+            let action = await Task.detached(priority: .userInitiated) {
+                GomokuAI().chooseAction(in: snapshot)
             }.value
             try? await Task.sleep(nanoseconds: 280_000_000)
 
@@ -208,14 +210,15 @@ final class MatchViewModel {
             }
 
             self.isAIThinking = false
-            guard let move else {
-                self.errorMessage = "电脑暂时找不到合法落点"
+            guard let action else {
+                self.errorMessage = "电脑暂时找不到合法行动"
                 return
             }
-            _ = self.apply(
-                .placeStone(coordinate: move, side: opponent.side),
-                startsComputerTurn: false
-            )
+            let didApply = self.apply(action, startsComputerTurn: false)
+            if didApply,
+               case let .useSkill(skill, _, _) = action {
+                self.noticeMessage = "\(opponent.displayName) 使用了「\(skill.title)」"
+            }
         }
     }
 
@@ -229,6 +232,7 @@ final class MatchViewModel {
             selectedMoveOrigin = nil
             pendingConfirmationSkill = nil
             errorMessage = nil
+            noticeMessage = nil
             let match = try save()
             if state.status.isFinished {
                 try recordCompletionIfNeeded(matchID: match.id)
@@ -252,7 +256,7 @@ final class MatchViewModel {
         isAIThinking = false
 
         guard var previous = history.popLast() else { return }
-        if state.mode == .singlePlayer, let fullTurnStart = history.popLast() {
+        if state.computerOpponent != nil, let fullTurnStart = history.popLast() {
             previous = fullTurnStart
         }
         do {
@@ -262,6 +266,7 @@ final class MatchViewModel {
             selectedMoveOrigin = nil
             pendingConfirmationSkill = nil
             errorMessage = nil
+            noticeMessage = nil
             try save()
             startComputerTurnIfNeeded()
         } catch {

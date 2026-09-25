@@ -75,3 +75,13 @@ extension PlayerSide {
         self == .playerOne ? AppColor.playerOne : AppColor.playerTwo
     }
 }
+
+extension GameMode {
+    var themeColor: Color {
+        switch self {
+        case .classic, .singlePlayer: AppColor.textPrimary
+        case .standardSkills: AppColor.accent
+        case .advancedSkills: Color(red: 0.64, green: 0.52, blue: 1.0)
+        }
+    }
+}

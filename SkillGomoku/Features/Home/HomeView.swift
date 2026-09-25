@@ -47,7 +47,7 @@ struct HomeView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("开始游戏")
                                         .font(.headline)
-                                    Text("选择经典、人机、技能或高阶玩法")
+                                    Text("先选对手，再选经典或技能规则")
                                         .font(.caption)
                                         .opacity(0.7)
                                 }

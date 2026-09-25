@@ -9,11 +9,11 @@
 - 价格建议：免费
 - Bundle ID：`com.chengyang.SkillGomoku`
 - 版本号：`2.0`
-- 构建号：`6`
+- 构建号：`7`
 
 ## 宣传文本
 
-离线五子棋现已支持三档人机挑战，也可体验本机双人、标准技能和高阶技能模式；无需账号或网络。
+离线五子棋现已支持经典、标准技能和高阶技能三类人机挑战，也可体验完整的本机双人模式；无需账号或网络。
 
 ## 此版本的新增内容
 
@@ -22,6 +22,8 @@
 - 新增轻松、标准、困难三档本地 AI
 - 支持玩家选择先手或后手，电脑会自动完成自己的回合
 - 新增 AI 思考状态、整回合悔棋和人机对局自动保存恢复
+- 人机对战支持经典、标准技能与高阶技能规则，AI 会主动判断并使用技能
+- 开始页按“离线人机 / 本机双人”分类，再选择本局规则
 - 人机战绩只计入真实玩家档案
 - AI 完全在设备上运行，不需要登录或联网
 
@@ -35,6 +37,8 @@
 
 - 经典五子棋对局
 - 轻松、标准、困难三档离线人机对战
+- 人机经典、标准技能与高阶技能规则
+- AI 根据棋局威胁、技能冷却与次数主动使用技能
 - 自选先手或后手，电脑自动落子
 - 标准技能五子棋，内置五项固定技能
 - 高阶技能五子棋，开局选择三项技能组合
@@ -54,7 +58,7 @@
 
 ## 截图映射
 
-截图包含原有双人/技能玩法，以及由 2.0 UI 测试在真实模拟器尺寸上捕获的人机设置页和 AI 对局页。
+截图包含原有双人/技能玩法，以及由 2.0 UI 测试在真实模拟器尺寸上捕获的对战方式分类、经典人机设置/对局和技能人机设置/对局。
 
 - App Icon 预览：`AppStoreAssets/app-icon/app-icon-1024.png`
 - iPhone 6.5 英寸：
@@ -67,12 +71,18 @@
   - `AppStoreAssets/iphone-6.9/03-match-setup.png`
   - `AppStoreAssets/iphone-6.9/04-ai-setup.png`
   - `AppStoreAssets/iphone-6.9/05-ai-match.png`
+  - `AppStoreAssets/iphone-6.9/06-mode-selection.png`
+  - `AppStoreAssets/iphone-6.9/07-ai-skill-setup.png`
+  - `AppStoreAssets/iphone-6.9/08-ai-skill-match.png`
 - iPad 13 英寸：
   - `AppStoreAssets/ipad-13/01-core-gameplay.png`
   - `AppStoreAssets/ipad-13/02-skill-mode.png`
   - `AppStoreAssets/ipad-13/03-match-setup.png`
   - `AppStoreAssets/ipad-13/04-ai-setup.png`
   - `AppStoreAssets/ipad-13/05-ai-match.png`
+  - `AppStoreAssets/ipad-13/06-mode-selection.png`
+  - `AppStoreAssets/ipad-13/07-ai-skill-setup.png`
+  - `AppStoreAssets/ipad-13/08-ai-skill-match.png`
 
 ## App Privacy 建议
 

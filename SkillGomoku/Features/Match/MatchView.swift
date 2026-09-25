@@ -191,16 +191,27 @@ struct MatchView: View {
         let message = viewModel.errorMessage
             ?? (viewModel.isAIThinking ? "电脑正在分析棋局…" : nil)
             ?? viewModel.skillInstruction
+            ?? viewModel.noticeMessage
             ?? "轻触棋盘交叉点落子"
 
+        let statusIcon = isError
+            ? "exclamationmark.circle.fill"
+            : (viewModel.noticeMessage != nil
+                ? "sparkles"
+                : (viewModel.selectedSkill == nil ? "hand.tap.fill" : "scope"))
+
         HStack(spacing: AppSpacing.xs) {
-            Image(systemName: isError ? "exclamationmark.circle.fill" : (viewModel.selectedSkill == nil ? "hand.tap.fill" : "scope"))
+            Image(systemName: statusIcon)
             Text(message)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
         .font(.caption.weight(.medium))
-        .foregroundStyle(isError ? AppColor.danger : AppColor.textSecondary)
+        .foregroundStyle(
+            isError
+                ? AppColor.danger
+                : (viewModel.noticeMessage != nil ? AppColor.accent : AppColor.textSecondary)
+        )
         .frame(minHeight: 20)
     }
 
