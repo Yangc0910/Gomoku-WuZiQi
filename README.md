@@ -6,7 +6,7 @@ A modern offline Gomoku game for iPhone and iPad, with local two-player and comp
 
 - Native SwiftUI Universal App
 - Same-device two-player play
-- Offline single-player AI with three difficulty levels
+- Offline single-player AI with three difficulty levels across classic, standard-skill, and advanced-skill rules
 - Local player names and avatars
 - Classic Gomoku
 - Standard Skill Gomoku
@@ -47,6 +47,8 @@ The current app includes:
 - Completed match records and local win/loss/draw stats
 - In-match undo, placement preview, invalid-position feedback, sound, and haptics
 - App Store metadata, privacy text, review notes, icons, and screenshot assets
+- Opponent-first mode navigation: Offline AI or Local Two Player, followed by a rule set
 - Offline computer opponent with easy, medium, and hard difficulty
+- Skill-capable AI that can choose legal skill actions and targets in standard and advanced modes
 - Human first/second-player selection and automatic AI turns
 - Saved/resumable single-player matches and human-only profile statistics

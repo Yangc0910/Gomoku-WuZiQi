@@ -84,7 +84,7 @@ struct MatchSetupView: View {
             .frame(width: 54, height: 54)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(mode.title)
+                Text(mode.ruleTitle)
                     .font(.title2.bold())
                     .foregroundStyle(AppColor.textPrimary)
                 Text("确认玩家与本局规则")
@@ -97,13 +97,13 @@ struct MatchSetupView: View {
     private var matchupSection: some View {
         SetupSection(title: "本局玩家", subtitle: "同机轮流行动") {
             HStack(spacing: AppSpacing.sm) {
-                SetupPlayerCard(player: playerOne, side: .playerOne)
+                SetupParticipantCard(player: MatchParticipant(profile: playerOne), side: .playerOne)
                 Text("VS")
                     .font(.caption2.weight(.black))
                     .foregroundStyle(AppColor.textSecondary)
                     .padding(8)
                     .background(Circle().fill(Color.white.opacity(0.05)))
-                SetupPlayerCard(player: playerTwo, side: .playerTwo)
+                SetupParticipantCard(player: MatchParticipant(profile: playerTwo), side: .playerTwo)
             }
         }
     }
@@ -163,7 +163,7 @@ struct MatchSetupView: View {
 
     @ViewBuilder
     private var skillSection: some View {
-        if mode != .classic {
+        if mode.supportsSkills {
             SetupSection(
                 title: mode == .standardSkills ? "双方技能" : "选择技能",
                 subtitle: mode == .standardSkills ? "双方各自拥有同一套 5 项技能" : "已选择 \(selectedAdvancedSkills.count) / 3 · 双方镜像使用"
@@ -174,18 +174,18 @@ struct MatchSetupView: View {
                 ) {
                     ForEach(availableSkills) { skill in
                         Button {
-                            guard mode == .advancedSkills else { return }
+                            guard mode.usesCustomSkillLoadout else { return }
                             toggleAdvancedSkill(skill)
                         } label: {
                             SkillSetupTile(
                                 skill: skill,
                                 isSelected: mode == .standardSkills || selectedAdvancedSkills.contains(skill),
-                                isSelectable: mode == .advancedSkills
+                                isSelectable: mode.usesCustomSkillLoadout
                             )
                         }
                         .buttonStyle(.plain)
                         .disabled(
-                            mode == .advancedSkills
+                            mode.usesCustomSkillLoadout
                                 && !selectedAdvancedSkills.contains(skill)
                                 && selectedAdvancedSkills.count >= 3
                         )
@@ -258,16 +258,11 @@ struct MatchSetupView: View {
     }
 
     private var canStart: Bool {
-        mode != .advancedSkills || selectedAdvancedSkills.count == 3
+        !mode.usesCustomSkillLoadout || selectedAdvancedSkills.count == 3
     }
 
     private var modeAccent: Color {
-        switch mode {
-        case .classic: AppColor.textPrimary
-        case .singlePlayer: AppColor.success
-        case .standardSkills: AppColor.accent
-        case .advancedSkills: Color(red: 0.64, green: 0.52, blue: 1.0)
-        }
+        mode.themeColor
     }
 
     private func optionColor(_ option: FirstPlayerOption) -> Color {
@@ -302,7 +297,7 @@ struct MatchSetupView: View {
     }
 }
 
-private struct SetupSection<Content: View>: View {
+struct SetupSection<Content: View>: View {
     let title: String
     let subtitle: String
     @ViewBuilder let content: Content
@@ -333,13 +328,13 @@ private struct SetupSection<Content: View>: View {
     }
 }
 
-private struct SetupPlayerCard: View {
-    let player: PlayerProfileEntity
+struct SetupParticipantCard: View {
+    let player: MatchParticipant
     let side: PlayerSide
 
     var body: some View {
         VStack(spacing: AppSpacing.xs) {
-            AvatarView(player: player, size: 52, accent: side.themeColor)
+            MatchAvatarView(participant: player, size: 52)
             Text(player.displayName)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(AppColor.textPrimary)
@@ -368,7 +363,7 @@ private struct CompactPlayerLabelStyle: LabelStyle {
     }
 }
 
-private struct FeedbackToggle: View {
+struct FeedbackToggle: View {
     let title: String
     let subtitle: String
     let systemImage: String
@@ -401,7 +396,7 @@ private struct FeedbackToggle: View {
     }
 }
 
-private struct SkillSetupTile: View {
+struct SkillSetupTile: View {
     let skill: SkillIdentifier
     let isSelected: Bool
     let isSelectable: Bool

@@ -32,7 +32,9 @@ struct PlayerPanel: View {
 
             if state.computerOpponent != nil {
                 aiModeCard
-            } else {
+            }
+
+            if state.computerOpponent == nil || !(state.skillStates[side] ?? []).isEmpty {
                 SkillReserveStrip(
                     state: state,
                     side: side,
@@ -358,7 +360,11 @@ struct SkillReserveStrip: View {
             ) {
                 onSkillTap?(skillState.id)
             }
-            .disabled(!availability.isUsable || onSkillTap == nil)
+            .disabled(
+                !availability.isUsable
+                    || onSkillTap == nil
+                    || state.computerOpponent?.side == side
+            )
         }
     }
 
@@ -540,7 +546,11 @@ struct MatchModeStrip: View {
                 )
                 .font(.subheadline.bold())
                 .foregroundStyle(isAIThinking ? AppColor.accent : AppColor.textPrimary)
-                Text("AI 完全在设备上运行，不需要网络连接。")
+                Text(
+                    state.mode.supportsSkills
+                        ? "AI 会分析局势并主动使用本局技能，全程无需网络。"
+                        : "AI 完全在设备上运行，不需要网络连接。"
+                )
                     .font(.caption)
                     .foregroundStyle(AppColor.textSecondary)
             }

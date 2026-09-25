@@ -61,7 +61,7 @@ struct RuleEngine: Sendable {
 
         case let .useSkill(skill, side, target):
             guard side == state.currentPlayer else { throw RuleEngineError.notPlayersTurn }
-            guard state.mode != .classic else { throw RuleEngineError.unsupportedActionInCurrentMode }
+            guard state.mode.supportsSkills else { throw RuleEngineError.unsupportedActionInCurrentMode }
             let availability = availability(of: skill, for: side, in: state)
             guard availability.isUsable else { throw RuleEngineError.skillUnavailable(availability.reason) }
 
@@ -76,7 +76,7 @@ struct RuleEngine: Sendable {
         guard !state.status.isFinished else {
             return SkillAvailability(isUsable: false, reason: "对局已经结束")
         }
-        guard state.mode != .classic else {
+        guard state.mode.supportsSkills else {
             return SkillAvailability(isUsable: false, reason: "经典模式不启用技能")
         }
         guard side == state.currentPlayer else {

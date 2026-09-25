@@ -85,12 +85,26 @@ struct GameState: Codable, Equatable, Sendable {
         skillStates[side]?.first { $0.id == skill }
     }
 
-    static func newSinglePlayer(humanSide: PlayerSide, difficulty: AIDifficulty) -> GameState {
-        GameState(
-            currentPlayer: .playerOne,
+    static func newSinglePlayer(
+        humanSide: PlayerSide,
+        difficulty: AIDifficulty,
+        mode: GameMode = .classic,
+        skillLoadout: [SkillIdentifier] = SkillIdentifier.defaultAdvancedLoadout,
+        randomSeed: UInt64 = 0x5eed
+    ) -> GameState {
+        // Keep the original raw value for classic AI matches so existing records
+        // and resumable 2.0 games continue to display as single-player matches.
+        let persistedMode: GameMode = mode == .classic ? .singlePlayer : mode
+        var state = newMatch(
+            mode: persistedMode,
             firstPlayer: .playerOne,
-            mode: .singlePlayer,
-            computerOpponent: ComputerOpponent(side: humanSide.opponent, difficulty: difficulty)
+            skillLoadout: skillLoadout,
+            randomSeed: randomSeed
         )
+        state.computerOpponent = ComputerOpponent(
+            side: humanSide.opponent,
+            difficulty: difficulty
+        )
+        return state
     }
 }

@@ -195,8 +195,8 @@ final class MatchViewModel {
         let snapshot = state
 
         aiTask = Task { [weak self] in
-            let move = await Task.detached(priority: .userInitiated) {
-                GomokuAI().chooseMove(in: snapshot)
+            let action = await Task.detached(priority: .userInitiated) {
+                GomokuAI().chooseAction(in: snapshot)
             }.value
             try? await Task.sleep(nanoseconds: 280_000_000)
 
@@ -208,14 +208,11 @@ final class MatchViewModel {
             }
 
             self.isAIThinking = false
-            guard let move else {
-                self.errorMessage = "电脑暂时找不到合法落点"
+            guard let action else {
+                self.errorMessage = "电脑暂时找不到合法行动"
                 return
             }
-            _ = self.apply(
-                .placeStone(coordinate: move, side: opponent.side),
-                startsComputerTurn: false
-            )
+            _ = self.apply(action, startsComputerTurn: false)
         }
     }
 
@@ -252,7 +249,7 @@ final class MatchViewModel {
         isAIThinking = false
 
         guard var previous = history.popLast() else { return }
-        if state.mode == .singlePlayer, let fullTurnStart = history.popLast() {
+        if state.computerOpponent != nil, let fullTurnStart = history.popLast() {
             previous = fullTurnStart
         }
         do {
