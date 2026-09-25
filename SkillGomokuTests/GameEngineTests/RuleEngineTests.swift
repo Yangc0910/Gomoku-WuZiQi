@@ -1,3 +1,4 @@
+import CoreGraphics
 import XCTest
 @testable import SkillGomoku
 
@@ -266,5 +267,47 @@ final class RuleEngineTests: XCTestCase {
         }
 
         return state
+    }
+}
+
+final class GomokuBoardGeometryTests: XCTestCase {
+    private let geometry = GomokuBoardGeometry(sideLength: 300, boardSize: 15)
+
+    func testOuterHalfCellsMapToEdgeIntersections() {
+        XCTAssertEqual(geometry.coordinate(at: CGPoint(x: 0, y: 0)), Coordinate(row: 0, column: 0))
+        XCTAssertEqual(geometry.coordinate(at: CGPoint(x: 300, y: 300)), Coordinate(row: 14, column: 14))
+    }
+
+    func testVisibleIntersectionsMapToTheirCoordinates() {
+        for row in 0..<15 {
+            for column in 0..<15 {
+                let location = CGPoint(
+                    x: geometry.inset + CGFloat(column) * geometry.spacing,
+                    y: geometry.inset + CGFloat(row) * geometry.spacing
+                )
+                XCTAssertEqual(
+                    geometry.coordinate(at: location),
+                    Coordinate(row: row, column: column)
+                )
+            }
+        }
+    }
+
+    func testSmallReleaseDriftKeepsInitialTapCoordinate() {
+        let coordinate = geometry.coordinate(
+            startingAt: CGPoint(x: 159, y: 150),
+            endingAt: CGPoint(x: 161, y: 150)
+        )
+
+        XCTAssertEqual(coordinate, Coordinate(row: 7, column: 7))
+    }
+
+    func testDeliberateDragUsesFinalCoordinate() {
+        let coordinate = geometry.coordinate(
+            startingAt: CGPoint(x: 150, y: 150),
+            endingAt: CGPoint(x: 170, y: 150)
+        )
+
+        XCTAssertEqual(coordinate, Coordinate(row: 7, column: 8))
     }
 }

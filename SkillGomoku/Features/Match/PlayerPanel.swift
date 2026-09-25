@@ -73,7 +73,7 @@ struct PlayerPanel: View {
             )
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(player.isComputer ? AppColor.accent : AppColor.textPrimary)
-            Text(player.isComputer ? "电脑会在本机分析棋局并自动落子。" : "轮到你时，点击棋盘交叉点落子。")
+            Text(player.isComputer ? "电脑会在本机分析棋局并自动落子。" : "轮到你时轻触落子，或按住滑动校准落点。")
                 .font(.caption)
                 .foregroundStyle(AppColor.textSecondary)
         }

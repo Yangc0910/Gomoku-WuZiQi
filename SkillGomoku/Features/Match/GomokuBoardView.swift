@@ -1,6 +1,46 @@
 import Foundation
 import SwiftUI
 
+struct GomokuBoardGeometry {
+    let sideLength: CGFloat
+    let boardSize: Int
+
+    var spacing: CGFloat {
+        sideLength / CGFloat(boardSize)
+    }
+
+    var inset: CGFloat {
+        spacing / 2
+    }
+
+    func coordinate(at location: CGPoint) -> Coordinate? {
+        guard sideLength > 0,
+              boardSize > 0,
+              location.x.isFinite,
+              location.y.isFinite,
+              (0...sideLength).contains(location.x),
+              (0...sideLength).contains(location.y) else {
+            return nil
+        }
+
+        // Every intersection owns the surrounding cell. Clamping the last cell
+        // keeps the visible half-cell padding around the board edges tappable.
+        let row = min(Int(location.y / spacing), boardSize - 1)
+        let column = min(Int(location.x / spacing), boardSize - 1)
+        return Coordinate(row: row, column: column)
+    }
+
+    func coordinate(startingAt startLocation: CGPoint, endingAt endLocation: CGPoint) -> Coordinate? {
+        let travel = hypot(
+            endLocation.x - startLocation.x,
+            endLocation.y - startLocation.y
+        )
+        let tapStabilityDistance = max(8, min(14, spacing * 0.45))
+        let resolvedLocation = travel <= tapStabilityDistance ? startLocation : endLocation
+        return coordinate(at: resolvedLocation)
+    }
+}
+
 struct GomokuBoardView: View {
     let state: GameState
     let highlightedCoordinates: Set<Coordinate>
@@ -27,8 +67,9 @@ struct GomokuBoardView: View {
     var body: some View {
         GeometryReader { proxy in
             let side = min(proxy.size.width, proxy.size.height)
-            let spacing = side / CGFloat(state.board.size)
-            let inset = spacing / 2
+            let geometry = GomokuBoardGeometry(sideLength: side, boardSize: state.board.size)
+            let spacing = geometry.spacing
+            let inset = geometry.inset
 
             ZStack {
                 RoundedRectangle(cornerRadius: AppRadius.board, style: .continuous)
@@ -130,11 +171,17 @@ struct GomokuBoardView: View {
             .gesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { value in
-                        hoverCoordinate = coordinate(at: value.location, spacing: spacing, inset: inset)
+                        hoverCoordinate = geometry.coordinate(
+                            startingAt: value.startLocation,
+                            endingAt: value.location
+                        )
                         invalidCoordinate = nil
                     }
                     .onEnded { value in
-                        guard let coordinate = coordinate(at: value.location, spacing: spacing, inset: inset) else {
+                        guard let coordinate = geometry.coordinate(
+                            startingAt: value.startLocation,
+                            endingAt: value.location
+                        ) else {
                             hoverCoordinate = nil
                             return
                         }
@@ -157,13 +204,6 @@ struct GomokuBoardView: View {
             .accessibilityLabel("十五乘十五五子棋棋盘")
         }
         .aspectRatio(1, contentMode: .fit)
-    }
-
-    private func coordinate(at location: CGPoint, spacing: CGFloat, inset: CGFloat) -> Coordinate? {
-        let row = Int(((location.y - inset) / spacing).rounded())
-        let column = Int(((location.x - inset) / spacing).rounded())
-        let coordinate = Coordinate(row: row, column: column)
-        return state.board.contains(coordinate) ? coordinate : nil
     }
 
     private func intersectionView(coordinate: Coordinate, spacing: CGFloat, inset: CGFloat) -> some View {

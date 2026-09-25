@@ -43,7 +43,7 @@ final class SkillGomokuUITests: XCTestCase {
         tapStartMatchButton(app)
 
         XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["轻触棋盘交叉点落子"].exists)
+        XCTAssertTrue(app.staticTexts["轻触落子，按住滑动可校准"].exists)
         let classicScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         classicScreenshot.name = "Classic-mode-turn-indicator"
         classicScreenshot.lifetime = .keepAlways
