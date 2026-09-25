@@ -26,7 +26,7 @@ The files in `docs/reference/` are layout references only. Do not copy their vis
 
 ## Current Status
 
-Version 2.0 builds on the V1.1 visual and gameplay-clarity update:
+Version 2.1 builds on the V2.0 offline AI release with clearer action feedback:
 
 - New abstract skill-seal App Icon and matching in-app brand mark
 - Layered East Asian match atmosphere with ink mountains, water lines, wood grain, and accessible falling-leaf motion
@@ -34,6 +34,8 @@ Version 2.0 builds on the V1.1 visual and gameplay-clarity update:
 - Independent always-visible skill decks for both players
 - Rebuilt dark match setup with readable, category-colored skill cards
 - Refined board, stones, last-move marker, player identity colors, and responsive layouts
+- Distinct board animations and result callouts for all nine standard and advanced skills
+- A deliberate AI thinking beat before every computer action
 
 The current app includes:
 
@@ -50,5 +52,6 @@ The current app includes:
 - Opponent-first mode navigation: Offline AI or Local Two Player, followed by a rule set
 - Offline computer opponent with easy, medium, and hard difficulty
 - Skill-capable AI that can choose legal skill actions and targets in standard and advanced modes
+- Two-stage skill resolution that keeps input locked until the 2.2-second effect and explanation complete
 - Human first/second-player selection and automatic AI turns
 - Saved/resumable single-player matches and human-only profile statistics

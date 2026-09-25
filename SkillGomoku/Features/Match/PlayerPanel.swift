@@ -244,6 +244,7 @@ struct TurnBanner: View {
     let state: GameState
     let playerOne: MatchParticipant
     let playerTwo: MatchParticipant
+    var isResolvingSkill = false
 
     var body: some View {
         HStack(spacing: AppSpacing.sm) {
@@ -287,6 +288,9 @@ struct TurnBanner: View {
     }
 
     private var title: String {
+        if isResolvingSkill {
+            return "技能结算中"
+        }
         switch state.status {
         case .inProgress:
             return "\(currentSide == .playerOne ? playerOne.displayName : playerTwo.displayName) 行动"

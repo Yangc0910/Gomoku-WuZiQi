@@ -45,7 +45,20 @@ struct MatchView: View {
                 ProgressView("载入对局")
                     .foregroundStyle(AppColor.textPrimary)
             }
+
+            if let presentation = viewModel?.activeSkillPresentation {
+                SkillAnnouncementView(
+                    presentation: presentation,
+                    actorName: participantName(for: presentation.side)
+                )
+                .id(presentation.id)
+                .padding(.horizontal, AppSpacing.xl)
+                .transition(.scale(scale: 0.88).combined(with: .opacity))
+                .allowsHitTesting(false)
+                .zIndex(10)
+            }
         }
+        .animation(.spring(duration: 0.32, bounce: 0.18), value: viewModel?.activeSkillPresentation?.id)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(AppColor.background.opacity(0.92), for: .navigationBar)
         .toolbar {
@@ -117,12 +130,18 @@ struct MatchView: View {
             }
                 .frame(width: 232)
             VStack(spacing: AppSpacing.sm) {
-                TurnBanner(state: viewModel.state, playerOne: playerOne, playerTwo: playerTwo)
+                TurnBanner(
+                    state: viewModel.state,
+                    playerOne: playerOne,
+                    playerTwo: playerTwo,
+                    isResolvingSkill: viewModel.isResolvingSkill
+                )
                 GomokuBoardView(
                     state: viewModel.state,
                     highlightedCoordinates: viewModel.targetHighlights,
                     selectedCoordinate: viewModel.selectedMoveOrigin,
-                    showsPlacementPreview: viewModel.selectedSkill == nil
+                    showsPlacementPreview: viewModel.selectedSkill == nil,
+                    skillPresentation: viewModel.activeSkillPresentation
                 ) { coordinate in
                     viewModel.handleBoardTap(coordinate)
                 }
@@ -155,13 +174,19 @@ struct MatchView: View {
                 viewModel.beginSkill(skill, side: .playerTwo)
             }
 
-            TurnBanner(state: viewModel.state, playerOne: playerOne, playerTwo: playerTwo)
+            TurnBanner(
+                state: viewModel.state,
+                playerOne: playerOne,
+                playerTwo: playerTwo,
+                isResolvingSkill: viewModel.isResolvingSkill
+            )
 
             GomokuBoardView(
                 state: viewModel.state,
                 highlightedCoordinates: viewModel.targetHighlights,
                 selectedCoordinate: viewModel.selectedMoveOrigin,
-                showsPlacementPreview: viewModel.selectedSkill == nil
+                showsPlacementPreview: viewModel.selectedSkill == nil,
+                skillPresentation: viewModel.activeSkillPresentation
             ) { coordinate in
                 viewModel.handleBoardTap(coordinate)
             }
@@ -249,6 +274,10 @@ struct MatchView: View {
         }
     }
 
+    private func participantName(for side: PlayerSide) -> String {
+        side == .playerOne ? playerOne.displayName : playerTwo.displayName
+    }
+
     private func makeViewModelIfNeeded() {
         guard viewModel == nil else { return }
         let state: GameState
@@ -269,6 +298,91 @@ struct MatchView: View {
             hapticsEnabled: hapticsEnabled
         )
         viewModel?.startComputerTurnIfNeeded()
+    }
+}
+
+private struct SkillAnnouncementView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let presentation: SkillPresentation
+    let actorName: String
+    @State private var startedAt = Date()
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduceMotion)) { timeline in
+            let elapsed = timeline.date.timeIntervalSince(startedAt)
+            let phase = reduceMotion
+                ? 0.72
+                : min(max(elapsed / SkillPresentation.duration, 0), 1)
+            let entrance = min(phase / 0.18, 1)
+
+            VStack(spacing: AppSpacing.sm) {
+                HStack(spacing: AppSpacing.sm) {
+                    ZStack {
+                        Circle()
+                            .fill(presentation.skill.category.themeColor.opacity(0.18))
+                            .frame(width: 54, height: 54)
+                        Circle()
+                            .stroke(presentation.skill.category.themeColor.opacity(0.65), lineWidth: 2)
+                            .frame(width: 54, height: 54)
+                            .scaleEffect(0.82 + CGFloat(phase) * 0.38)
+                            .opacity(1 - phase * 0.72)
+                        Image(systemName: presentation.skill.symbolName)
+                            .font(.title2.bold())
+                            .foregroundStyle(presentation.skill.category.themeColor)
+                    }
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("\(actorName) 发动技能")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(AppColor.textSecondary)
+                        Text(presentation.skill.title)
+                            .font(.title3.bold())
+                            .foregroundStyle(AppColor.textPrimary)
+                    }
+                    Spacer(minLength: 0)
+                    Text(presentation.skill.category.title)
+                        .font(.caption2.bold())
+                        .foregroundStyle(presentation.skill.category.themeColor)
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 5)
+                        .background(Capsule().fill(presentation.skill.category.themeColor.opacity(0.13)))
+                }
+
+                Text(presentation.detail)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(AppColor.textPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                GeometryReader { proxy in
+                    Capsule()
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(alignment: .leading) {
+                            Capsule()
+                                .fill(presentation.skill.category.themeColor)
+                                .frame(width: proxy.size.width * CGFloat(max(0.04, 1 - phase)))
+                        }
+                }
+                .frame(height: 4)
+            }
+            .padding(AppSpacing.md)
+            .frame(maxWidth: 360)
+            .background(
+                RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                    .fill(AppColor.backgroundRaised.opacity(0.96))
+                    .shadow(color: presentation.skill.category.themeColor.opacity(0.28), radius: 28, y: 12)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                    .stroke(presentation.skill.category.themeColor.opacity(0.5), lineWidth: 1.5)
+            )
+            .scaleEffect(0.9 + CGFloat(entrance) * 0.1)
+            .opacity(entrance)
+        }
+        .onAppear { startedAt = Date() }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("active-skill-effect-\(presentation.skill.rawValue)")
+        .accessibilityLabel("\(actorName)发动\(presentation.skill.title)，\(presentation.detail)")
     }
 }
 

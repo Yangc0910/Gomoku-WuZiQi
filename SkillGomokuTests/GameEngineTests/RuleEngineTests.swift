@@ -270,6 +270,116 @@ final class RuleEngineTests: XCTestCase {
     }
 }
 
+final class SkillPresentationTests: XCTestCase {
+    private let engine = RuleEngine()
+
+    func testEverySkillCreatesVisibleResultPresentation() throws {
+        XCTAssertGreaterThanOrEqual(SkillPresentation.duration, 1.0)
+
+        for skill in SkillIdentifier.allCases {
+            let (state, action) = try scenario(for: skill)
+            let next = try engine.applying(action, to: state)
+            let presentation = try XCTUnwrap(
+                SkillPresentation.make(action: action, before: state, after: next)
+            )
+
+            XCTAssertEqual(presentation.skill, skill)
+            XCTAssertEqual(presentation.side, .playerOne)
+            XCTAssertFalse(presentation.detail.isEmpty)
+            XCTAssertFalse(
+                presentation.affectedCoordinates.isEmpty,
+                "\(skill.title) 应标记受影响的棋盘位置"
+            )
+        }
+    }
+
+    private func scenario(for skill: SkillIdentifier) throws -> (GameState, GameAction) {
+        var state = GameState.newMatch(
+            mode: .advancedSkills,
+            firstPlayer: .playerOne,
+            skillLoadout: [skill]
+        )
+
+        switch skill {
+        case .sandstorm:
+            let target = Coordinate(row: 7, column: 7)
+            try state.board.place(Stone(side: .playerTwo, moveNumber: 1), at: target)
+            return (state, .useSkill(skill: skill, side: .playerOne, target: .coordinate(target)))
+
+        case .foundTreasure:
+            let removed = RemovedStone(
+                originalSide: .playerOne,
+                originalCoordinate: Coordinate(row: 4, column: 4),
+                removedAtTurn: 1,
+                removedBySkill: .sandstorm
+            )
+            state.removedStones = [removed]
+            return (state, .useSkill(skill: skill, side: .playerOne, target: nil))
+
+        case .cleanup:
+            try state.board.place(
+                Stone(side: .playerTwo, moveNumber: 1),
+                at: Coordinate(row: 6, column: 6)
+            )
+            try state.board.place(
+                Stone(side: .playerTwo, moveNumber: 2),
+                at: Coordinate(row: 8, column: 8)
+            )
+            return (state, .useSkill(skill: skill, side: .playerOne, target: nil))
+
+        case .polarityShift:
+            try state.board.place(
+                Stone(side: .playerOne, moveNumber: 1),
+                at: Coordinate(row: 7, column: 7)
+            )
+            try state.board.place(
+                Stone(side: .playerTwo, moveNumber: 2),
+                at: Coordinate(row: 8, column: 8)
+            )
+            return (state, .useSkill(skill: skill, side: .playerOne, target: nil))
+
+        case .mountainPull:
+            try state.board.place(
+                Stone(side: .playerOne, moveNumber: 1),
+                at: Coordinate(row: 7, column: 7)
+            )
+            return (state, .useSkill(skill: skill, side: .playerOne, target: nil))
+
+        case .swapStep:
+            let origin = Coordinate(row: 7, column: 7)
+            let destination = Coordinate(row: 7, column: 8)
+            try state.board.place(Stone(side: .playerOne, moveNumber: 1), at: origin)
+            return (
+                state,
+                .useSkill(
+                    skill: skill,
+                    side: .playerOne,
+                    target: .move(origin: origin, destination: destination)
+                )
+            )
+
+        case .forbiddenPoint:
+            let target = Coordinate(row: 7, column: 7)
+            return (state, .useSkill(skill: skill, side: .playerOne, target: .coordinate(target)))
+
+        case .revive:
+            let removed = RemovedStone(
+                originalSide: .playerOne,
+                originalCoordinate: Coordinate(row: 5, column: 5),
+                removedAtTurn: 1,
+                removedBySkill: .sandstorm
+            )
+            state.removedStones = [removed]
+            return (state, .useSkill(skill: skill, side: .playerOne, target: .removedStone(removed.id)))
+
+        case .shield:
+            let target = Coordinate(row: 7, column: 7)
+            try state.board.place(Stone(side: .playerOne, moveNumber: 1), at: target)
+            return (state, .useSkill(skill: skill, side: .playerOne, target: .coordinate(target)))
+        }
+    }
+}
+
 final class GomokuBoardGeometryTests: XCTestCase {
     private let geometry = GomokuBoardGeometry(sideLength: 300, boardSize: 15)
 

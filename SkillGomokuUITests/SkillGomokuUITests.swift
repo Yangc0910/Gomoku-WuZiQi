@@ -109,6 +109,14 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["在棋盘上选择目标"].waitForExistence(timeout: 5))
         tapBoard(app, row: 8, column: 8)
 
+        let skillEffect = app.descendants(matching: .any)
+            .matching(identifier: "active-skill-effect-sandstorm")
+            .firstMatch
+        XCTAssertTrue(skillEffect.waitForExistence(timeout: 2), "技能发动后应立即显示名称和结果")
+        let effectScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        effectScreenshot.name = "Skill-effect-sandstorm-in-progress"
+        effectScreenshot.lifetime = .keepAlways
+        add(effectScreenshot)
         XCTAssertTrue(app.staticTexts["第 4 回合"].waitForExistence(timeout: 5))
 
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
@@ -146,6 +154,10 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
         tapBoard(app, row: 7, column: 7)
 
+        XCTAssertFalse(
+            app.staticTexts["第 3 回合"].waitForExistence(timeout: 0.65),
+            "AI 应保留可感知的思考时间，不应立即落子"
+        )
         XCTAssertTrue(app.staticTexts["第 3 回合"].waitForExistence(timeout: 8))
         let aiModeLabel = app.staticTexts
             .matching(NSPredicate(format: "label CONTAINS %@", "离线 AI"))
