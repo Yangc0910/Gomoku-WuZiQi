@@ -159,6 +159,7 @@ private struct PlayerIdentityHeader: View {
                     .font(avatarSize > 50 ? .title3.bold() : .subheadline.bold())
                     .foregroundStyle(AppColor.textPrimary)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.72)
                 HStack(spacing: AppSpacing.xs) {
                     Circle()
                         .fill(side.themeColor)
@@ -167,7 +168,15 @@ private struct PlayerIdentityHeader: View {
                         .font(.caption2)
                         .foregroundStyle(AppColor.textSecondary)
                 }
+                if let difficulty = player.computerDifficulty {
+                    Label("离线 AI · \(difficulty.title)", systemImage: "cpu")
+                        .font(.caption2.bold())
+                        .foregroundStyle(AppColor.accent)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
+                }
             }
+            .layoutPriority(1)
 
             Spacer(minLength: AppSpacing.xs)
             if state.currentPlayer == side && !state.status.isFinished {
@@ -182,11 +191,6 @@ private struct PlayerIdentityHeader: View {
                 Text("\(state.board.coordinates(for: side).count) 子")
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(AppColor.textSecondary)
-            }
-            if let difficulty = player.computerDifficulty {
-                Label("离线 AI · \(difficulty.title)", systemImage: "cpu")
-                    .font(.caption.bold())
-                    .foregroundStyle(AppColor.accent)
             }
         }
     }
