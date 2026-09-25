@@ -293,7 +293,7 @@
 		000000000000000000000013 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
 			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 			CODE_SIGN_STYLE = Automatic;
-			CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 			DEVELOPMENT_TEAM = H23DM6J89F;
 			GENERATE_INFOPLIST_FILE = NO;
 			INFOPLIST_FILE = SkillGomoku/Resources/Info.plist;
@@ -307,7 +307,7 @@
 		000000000000000000000014 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
 			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 			CODE_SIGN_STYLE = Automatic;
-			CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 			DEVELOPMENT_TEAM = H23DM6J89F;
 			GENERATE_INFOPLIST_FILE = NO;
 			INFOPLIST_FILE = SkillGomoku/Resources/Info.plist;
@@ -321,7 +321,7 @@
 		000000000000000000000015 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
 			BUNDLE_LOADER = "$(TEST_HOST)";
 			CODE_SIGN_STYLE = Automatic;
-			CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 			GENERATE_INFOPLIST_FILE = YES;
 			MARKETING_VERSION = 2.1;
 			PRODUCT_BUNDLE_IDENTIFIER = com.chengyang.SkillGomokuTests;
@@ -334,7 +334,7 @@
 		000000000000000000000016 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
 			BUNDLE_LOADER = "$(TEST_HOST)";
 			CODE_SIGN_STYLE = Automatic;
-			CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 			GENERATE_INFOPLIST_FILE = YES;
 			MARKETING_VERSION = 2.1;
 			PRODUCT_BUNDLE_IDENTIFIER = com.chengyang.SkillGomokuTests;
@@ -346,7 +346,7 @@
 		}; name = Release; };
 		00000000000000000000007A /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
 			CODE_SIGN_STYLE = Automatic;
-			CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 			GENERATE_INFOPLIST_FILE = YES;
 			MARKETING_VERSION = 2.1;
 			PRODUCT_BUNDLE_IDENTIFIER = com.chengyang.SkillGomokuUITests;
@@ -358,7 +358,7 @@
 		}; name = Debug; };
 		00000000000000000000007B /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
 			CODE_SIGN_STYLE = Automatic;
-			CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 			GENERATE_INFOPLIST_FILE = YES;
 			MARKETING_VERSION = 2.1;
 			PRODUCT_BUNDLE_IDENTIFIER = com.chengyang.SkillGomokuUITests;

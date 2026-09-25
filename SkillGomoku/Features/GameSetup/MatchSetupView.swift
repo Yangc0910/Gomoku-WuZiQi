@@ -135,8 +135,13 @@ struct MatchSetupView: View {
                             RoundedRectangle(cornerRadius: AppRadius.compact, style: .continuous)
                                 .stroke(firstPlayer == option ? Color.white.opacity(0.16) : AppColor.divider, lineWidth: 1)
                         )
+                        .overlay(alignment: .topTrailing) {
+                            SelectionStateBadge(isSelected: firstPlayer == option)
+                                .padding(7)
+                        }
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(SetupChoiceButtonStyle())
+                    .accessibilityValue(firstPlayer == option ? "已选择" : "未选择")
                 }
             }
         }
@@ -183,7 +188,12 @@ struct MatchSetupView: View {
                                 isSelectable: mode.usesCustomSkillLoadout
                             )
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(SetupChoiceButtonStyle())
+                        .accessibilityValue(
+                            mode == .standardSkills || selectedAdvancedSkills.contains(skill)
+                                ? "已选择"
+                                : "未选择"
+                        )
                         .disabled(
                             mode.usesCustomSkillLoadout
                                 && !selectedAdvancedSkills.contains(skill)
@@ -350,6 +360,72 @@ struct SetupParticipantCard: View {
             RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
                 .fill(side.themeColor.opacity(0.075))
         )
+    }
+}
+
+struct PlayerChoiceCard: View {
+    let player: PlayerProfileEntity
+    let isSelected: Bool
+    let accent: Color
+    var isUnavailable = false
+
+    var body: some View {
+        VStack(spacing: AppSpacing.sm) {
+            ZStack(alignment: .topTrailing) {
+                AvatarView(player: player, size: 58, accent: accent)
+                SelectionStateBadge(isSelected: isSelected, isUnavailable: isUnavailable)
+                    .offset(x: 7, y: -7)
+            }
+            Text(player.displayName)
+                .font(.caption.bold())
+                .foregroundStyle(AppColor.textPrimary)
+                .lineLimit(1)
+            Text(isUnavailable ? "已由另一方选择" : (isSelected ? "已选择" : "点击选择"))
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(isSelected ? accent : AppColor.textSecondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+        }
+        .padding(AppSpacing.sm)
+        .frame(width: 112)
+        .background(
+            RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
+                .fill(isSelected ? accent.opacity(0.16) : Color.white.opacity(0.04))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
+                .stroke(isSelected ? accent : AppColor.divider, lineWidth: isSelected ? 2 : 1)
+        )
+        .opacity(isUnavailable ? 0.4 : 1)
+        .animation(.easeOut(duration: 0.18), value: isSelected)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(player.displayName)
+        .accessibilityValue(isUnavailable ? "不可选择" : (isSelected ? "已选择" : "未选择"))
+    }
+}
+
+struct SelectionStateBadge: View {
+    let isSelected: Bool
+    var isUnavailable = false
+
+    var body: some View {
+        Image(systemName: isUnavailable ? "minus.circle.fill" : (isSelected ? "checkmark.circle.fill" : "circle"))
+            .font(.caption.bold())
+            .foregroundStyle(
+                isUnavailable
+                    ? AppColor.textSecondary
+                    : (isSelected ? AppColor.textPrimary : AppColor.textSecondary.opacity(0.7))
+            )
+            .symbolEffect(.bounce, value: isSelected)
+    }
+}
+
+struct SetupChoiceButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.975 : 1)
+            .brightness(configuration.isPressed ? 0.035 : 0)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 

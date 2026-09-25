@@ -90,33 +90,21 @@ struct PlayerSelectionView: View {
                     HStack(spacing: AppSpacing.md) {
                         ForEach(players) { player in
                             let isSelected = selection.wrappedValue == player.id
+                            let isUnavailable = unavailableID == player.id
                             Button {
-                                selection.wrappedValue = player.id
-                            } label: {
-                                VStack(spacing: AppSpacing.sm) {
-                                    AvatarView(player: player, size: 58, accent: side.themeColor)
-                                    Text(player.displayName)
-                                        .font(.caption.bold())
-                                        .foregroundStyle(AppColor.textPrimary)
-                                        .lineLimit(1)
-                                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                                        .font(.caption)
-                                        .foregroundStyle(isSelected ? side.themeColor : AppColor.textSecondary)
+                                withAnimation(.easeOut(duration: 0.18)) {
+                                    selection.wrappedValue = player.id
                                 }
-                                .padding(AppSpacing.sm)
-                                .frame(width: 104)
-                                .background(
-                                    RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
-                                        .fill(isSelected ? side.themeColor.opacity(0.16) : Color.white.opacity(0.04))
+                            } label: {
+                                PlayerChoiceCard(
+                                    player: player,
+                                    isSelected: isSelected,
+                                    accent: side.themeColor,
+                                    isUnavailable: isUnavailable
                                 )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
-                                        .stroke(isSelected ? side.themeColor : AppColor.divider, lineWidth: isSelected ? 2 : 1)
-                                )
-                                .opacity(unavailableID == player.id ? 0.38 : 1)
                             }
-                            .buttonStyle(.plain)
-                            .disabled(unavailableID == player.id)
+                            .buttonStyle(SetupChoiceButtonStyle())
+                            .disabled(isUnavailable)
                         }
                     }
                 }

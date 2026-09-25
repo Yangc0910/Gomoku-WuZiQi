@@ -36,6 +36,7 @@ Version 2.1 builds on the V2.0 offline AI release with clearer action feedback:
 - Refined board, stones, last-move marker, player identity colors, and responsive layouts
 - Distinct board animations and result callouts for all nine standard and advanced skills
 - A deliberate AI thinking beat before every computer action
+- Clearer direct-selection cards, check states, and press feedback throughout pre-match setup
 
 The current app includes:
 

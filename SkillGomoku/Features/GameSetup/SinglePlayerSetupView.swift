@@ -89,14 +89,24 @@ struct SinglePlayerSetupView: View {
                         .foregroundStyle(AppColor.textSecondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
-                    Picker("选择档案", selection: $selectedPlayerID) {
-                        ForEach(players) { player in
-                            Text(player.displayName).tag(Optional(player.id))
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: AppSpacing.md) {
+                            ForEach(players) { player in
+                                Button {
+                                    withAnimation(.easeOut(duration: 0.18)) {
+                                        selectedPlayerID = player.id
+                                    }
+                                } label: {
+                                    PlayerChoiceCard(
+                                        player: player,
+                                        isSelected: selectedPlayerID == player.id,
+                                        accent: AppColor.accent
+                                    )
+                                }
+                                .buttonStyle(SetupChoiceButtonStyle())
+                            }
                         }
                     }
-                    .pickerStyle(.menu)
-                    .tint(AppColor.accent)
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
                 Button {
@@ -179,8 +189,13 @@ struct SinglePlayerSetupView: View {
                                 RoundedRectangle(cornerRadius: AppRadius.compact, style: .continuous)
                                     .stroke(difficulty == level ? Color.white.opacity(0.16) : AppColor.divider, lineWidth: 1)
                             )
+                            .overlay(alignment: .topTrailing) {
+                                SelectionStateBadge(isSelected: difficulty == level)
+                                    .padding(7)
+                            }
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(SetupChoiceButtonStyle())
+                        .accessibilityValue(difficulty == level ? "已选择" : "未选择")
                     }
                 }
 
@@ -234,7 +249,12 @@ struct SinglePlayerSetupView: View {
                                 isSelectable: mode.usesCustomSkillLoadout
                             )
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(SetupChoiceButtonStyle())
+                        .accessibilityValue(
+                            mode == .standardSkills || selectedAdvancedSkills.contains(skill)
+                                ? "已选择"
+                                : "未选择"
+                        )
                         .disabled(
                             mode.usesCustomSkillLoadout
                                 && !selectedAdvancedSkills.contains(skill)
@@ -370,8 +390,14 @@ struct SinglePlayerSetupView: View {
                 RoundedRectangle(cornerRadius: AppRadius.compact, style: .continuous)
                     .stroke(humanSide == side ? Color.white.opacity(0.16) : AppColor.divider, lineWidth: 1)
             )
+            .overlay(alignment: .topTrailing) {
+                SelectionStateBadge(isSelected: humanSide == side)
+                    .padding(7)
+            }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(SetupChoiceButtonStyle())
+        .accessibilityLabel(title)
+        .accessibilityValue(humanSide == side ? "已选择" : "未选择")
     }
 
     private func difficultyIcon(_ difficulty: AIDifficulty) -> String {

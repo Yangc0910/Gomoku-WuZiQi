@@ -70,19 +70,53 @@ struct ModeSelectionView: View {
             Text("选择对战方式")
                 .font(.system(size: 34, weight: .bold, design: .rounded))
                 .foregroundStyle(AppColor.textPrimary)
-            Text("先选择对手，再选择本局规则。")
+            Text("两步完成设置：先选对手，再选规则。")
                 .font(.subheadline)
                 .foregroundStyle(AppColor.textSecondary)
         }
     }
 
     private var opponentPicker: some View {
-        Picker("对战方式", selection: $opponentCategory) {
-            ForEach(OpponentCategory.allCases) { category in
-                Text(category.title).tag(category)
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            Text("1 · 选择对手")
+                .font(.headline)
+                .foregroundStyle(AppColor.textPrimary)
+
+            HStack(spacing: AppSpacing.sm) {
+                ForEach(OpponentCategory.allCases) { category in
+                    let isSelected = opponentCategory == category
+                    Button {
+                        withAnimation(.easeOut(duration: 0.18)) {
+                            opponentCategory = category
+                        }
+                    } label: {
+                        HStack(spacing: AppSpacing.sm) {
+                            Image(systemName: category.symbolName)
+                                .font(.headline)
+                            Text(category.title)
+                                .font(.subheadline.weight(.semibold))
+                                .lineLimit(1)
+                            Spacer(minLength: 0)
+                            SelectionStateBadge(isSelected: isSelected)
+                        }
+                        .foregroundStyle(isSelected ? AppColor.textPrimary : AppColor.textSecondary)
+                        .padding(.horizontal, AppSpacing.sm)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(
+                            RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
+                                .fill(isSelected ? category.accent.opacity(0.18) : Color.white.opacity(0.04))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
+                                .stroke(isSelected ? category.accent : AppColor.divider, lineWidth: isSelected ? 2 : 1)
+                        )
+                    }
+                    .buttonStyle(SetupChoiceButtonStyle())
+                    .accessibilityLabel(category.title)
+                    .accessibilityValue(isSelected ? "已选择" : "未选择")
+                }
             }
         }
-        .pickerStyle(.segmented)
         .accessibilityIdentifier("opponent-category-picker")
     }
 
@@ -120,7 +154,7 @@ struct ModeSelectionView: View {
 
     private var ruleChoices: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("选择规则")
+            Text("2 · 选择规则")
                 .font(.headline)
                 .foregroundStyle(AppColor.textPrimary)
 
@@ -130,7 +164,7 @@ struct ModeSelectionView: View {
                 } label: {
                     ModeCard(mode: mode, opponentCategory: opponentCategory)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(SetupChoiceButtonStyle())
                 .accessibilityIdentifier("mode-\(opponentCategory.rawValue)-\(mode.rawValue)")
             }
         }
