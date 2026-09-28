@@ -17,7 +17,7 @@ struct HomeView: View {
                     VStack(alignment: .leading, spacing: AppSpacing.lg) {
                         HStack(alignment: .center, spacing: AppSpacing.md) {
                             VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                                Text("VERSION 2.0")
+                                Text("VERSION 2.1")
                                     .font(.caption2.weight(.heavy))
                                     .tracking(1.5)
                                     .foregroundStyle(AppColor.accent)
@@ -41,23 +41,12 @@ struct HomeView: View {
                         NavigationLink {
                             ModeSelectionView()
                         } label: {
-                            HStack(spacing: AppSpacing.md) {
-                                Image(systemName: "play.fill")
-                                    .font(.title3.bold())
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("开始游戏")
-                                        .font(.headline)
-                                    Text("先选对手，再选经典或技能规则")
-                                        .font(.caption)
-                                        .opacity(0.7)
-                                }
-                                Spacer()
-                                Image(systemName: "arrow.right")
-                                    .font(.subheadline.bold())
-                            }
-                            .frame(maxWidth: .infinity)
+                            GameStartActionLabel(
+                                title: "开始游戏",
+                                subtitle: "先选对手，再选经典或技能规则"
+                            )
                         }
-                        .buttonStyle(HomeButtonStyle(color: AppColor.accent))
+                        .buttonStyle(SetupChoiceButtonStyle())
                         .accessibilityLabel("开始游戏")
 
                         if let match = unfinishedMatches.first,

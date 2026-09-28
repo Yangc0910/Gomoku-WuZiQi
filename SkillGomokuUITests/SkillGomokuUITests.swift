@@ -34,13 +34,8 @@ final class SkillGomokuUITests: XCTestCase {
         app.buttons["本机双人"].tap()
         XCTAssertTrue(app.buttons["mode-local-classic"].waitForExistence(timeout: 5))
         app.buttons["mode-local-classic"].tap()
-
-        let continueButton = app.buttons["继续"]
-        reveal(continueButton, in: app)
-        XCTAssertTrue(continueButton.waitForExistence(timeout: 5))
-        continueButton.tap()
-
-        tapStartMatchButton(app)
+        XCTAssertTrue(app.navigationBars["开始游戏"].exists, "选择玩法不应立即跳转")
+        app.buttons["quick-start-match"].tap()
 
         XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["轻触落子，按住滑动可校准"].exists)
@@ -81,18 +76,13 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.buttons["mode-local-standardSkills"].waitForExistence(timeout: 5))
         app.buttons["mode-local-standardSkills"].tap()
 
-        let continueButton = app.buttons["继续"]
-        reveal(continueButton, in: app)
-        XCTAssertTrue(continueButton.waitForExistence(timeout: 5))
-        continueButton.tap()
-
-        XCTAssertTrue(app.staticTexts["双方技能"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["开始游戏"].exists, "玩法卡只更新选择状态")
         let setupScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        setupScreenshot.name = "Skill-mode-match-setup"
+        setupScreenshot.name = "Skill-mode-quick-start-selection"
         setupScreenshot.lifetime = .keepAlways
         add(setupScreenshot)
 
-        tapStartMatchButton(app)
+        app.buttons["quick-start-match"].tap()
 
         XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
         tapBoard(app, row: 7, column: 7)
@@ -137,19 +127,8 @@ final class SkillGomokuUITests: XCTestCase {
         add(modeScreenshot)
 
         app.buttons["mode-computer-classic"].tap()
-
-        XCTAssertTrue(app.navigationBars["人机对战设置"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["电脑难度"].exists)
-
-        let setupScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        setupScreenshot.name = "AI-single-player-setup"
-        setupScreenshot.lifetime = .keepAlways
-        add(setupScreenshot)
-
-        let startButton = app.buttons["start-single-player-match"]
-        reveal(startButton, in: app)
-        XCTAssertTrue(startButton.waitForExistence(timeout: 5))
-        startButton.tap()
+        XCTAssertTrue(app.navigationBars["开始游戏"].exists, "选择玩法后应停留在同一页")
+        app.buttons["quick-start-match"].tap()
 
         XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
         tapBoard(app, row: 7, column: 7)
@@ -177,18 +156,12 @@ final class SkillGomokuUITests: XCTestCase {
         XCTAssertTrue(app.buttons["mode-computer-standardSkills"].waitForExistence(timeout: 5))
         app.buttons["mode-computer-standardSkills"].tap()
 
-        let skillSection = app.staticTexts["人机技能"]
-        XCTAssertTrue(skillSection.waitForExistence(timeout: 5))
-        reveal(skillSection, in: app)
         let setupScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        setupScreenshot.name = "AI-skill-mode-setup"
+        setupScreenshot.name = "AI-skill-quick-start-selection"
         setupScreenshot.lifetime = .keepAlways
         add(setupScreenshot)
 
-        let startButton = app.buttons["start-single-player-match"]
-        reveal(startButton, in: app)
-        XCTAssertTrue(startButton.waitForExistence(timeout: 5))
-        startButton.tap()
+        app.buttons["quick-start-match"].tap()
 
         XCTAssertTrue(app.buttons["skill-playerOne-sandstorm"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["skill-playerTwo-sandstorm"].exists)
@@ -207,21 +180,6 @@ final class SkillGomokuUITests: XCTestCase {
         app.launchEnvironment["UITEST_FORCE_CAMERA_UNAVAILABLE"] = "1"
         app.launch()
         return app
-    }
-
-    private func tapStartMatchButton(_ app: XCUIApplication) {
-        let button = app.buttons["开始对局"]
-        reveal(button, in: app)
-        XCTAssertTrue(button.waitForExistence(timeout: 5))
-        button.tap()
-    }
-
-    private func reveal(_ element: XCUIElement, in app: XCUIApplication) {
-        var attempts = 0
-        while (!element.exists || !element.isHittable) && attempts < 7 {
-            app.swipeUp()
-            attempts += 1
-        }
     }
 
     private func tapBoard(_ app: XCUIApplication, row: Int, column: Int, boardSize: CGFloat = 15) {

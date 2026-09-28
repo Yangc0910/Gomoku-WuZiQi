@@ -37,6 +37,7 @@ Version 2.1 builds on the V2.0 offline AI release with clearer action feedback:
 - Distinct board animations and result callouts for all nine standard and advanced skills
 - A deliberate AI thinking beat before every computer action
 - Clearer direct-selection cards, check states, and press feedback throughout pre-match setup
+- Android-aligned quick start: choose opponent and rules in place, then launch a default match from one prominent action
 
 The current app includes:
 
