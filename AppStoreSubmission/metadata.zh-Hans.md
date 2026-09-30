@@ -8,17 +8,21 @@
 - 年龄分级建议：4+
 - 价格建议：免费
 - Bundle ID：`com.chengyang.SkillGomoku`
-- 版本号：`2.1`
-- 构建号：`11`
+- 版本号：`2.2`
+- 构建号：`12`
 
 ## 宣传文本
 
-离线五子棋现已支持经典、标准技能和高阶技能三类人机挑战，也可体验完整的本机双人模式；无需账号或网络。
+九项技能现可自由组建高阶流派，并可在对局内随时查看图文说明；支持离线 AI 与本机双人，无需账号或网络。
 
 ## 此版本的新增内容
 
-技能五子棋 2.1 让每一次技能发动和 AI 行动都更清楚：
+技能五子棋 2.2 让技能的选择、理解与发动过程都更清楚：
 
+- 高阶技能模式新增独立选技界面，从九项技能中选择三项组建本局流派
+- 离线 AI 与本机双人高阶对局均支持自选技能，双方镜像使用所选组合
+- 标准与高阶技能对局新增“说明”入口，随时查看每项技能的图示、效果、目标、冷却与次数
+- 全面更新 App Store 展示图片，以真实游戏界面配合专业排版介绍核心玩法
 - 为全部九项标准与高阶技能增加独立棋盘动效
 - 新增技能名称、发动者和实际结果提示，完整反馈保持约 2.2 秒
 - AI 落子前保留约 1 秒可感知的思考时间
@@ -67,31 +71,11 @@
 
 ## 截图映射
 
-截图包含原有双人/技能玩法，以及由 2.0 UI 测试在真实模拟器尺寸上捕获的对战方式分类、经典人机设置/对局和技能人机设置/对局。
+截图全部来自 2.2 的真实 XCTest 界面捕获，再进行统一品牌排版；文件均为无透明通道 PNG。
 
-- App Icon 预览：`AppStoreAssets/app-icon/app-icon-1024.png`
-- iPhone 6.5 英寸：
-  - `AppStoreAssets/iphone-6.5/01-core-gameplay.png`
-  - `AppStoreAssets/iphone-6.5/02-skill-mode.png`
-  - `AppStoreAssets/iphone-6.5/03-match-setup.png`
-- iPhone 6.9 英寸：
-  - `AppStoreAssets/iphone-6.9/01-core-gameplay.png`
-  - `AppStoreAssets/iphone-6.9/02-skill-mode.png`
-  - `AppStoreAssets/iphone-6.9/03-match-setup.png`
-  - `AppStoreAssets/iphone-6.9/04-ai-setup.png`
-  - `AppStoreAssets/iphone-6.9/05-ai-match.png`
-  - `AppStoreAssets/iphone-6.9/06-mode-selection.png`
-  - `AppStoreAssets/iphone-6.9/07-ai-skill-setup.png`
-  - `AppStoreAssets/iphone-6.9/08-ai-skill-match.png`
-- iPad 13 英寸：
-  - `AppStoreAssets/ipad-13/01-core-gameplay.png`
-  - `AppStoreAssets/ipad-13/02-skill-mode.png`
-  - `AppStoreAssets/ipad-13/03-match-setup.png`
-  - `AppStoreAssets/ipad-13/04-ai-setup.png`
-  - `AppStoreAssets/ipad-13/05-ai-match.png`
-  - `AppStoreAssets/ipad-13/06-mode-selection.png`
-  - `AppStoreAssets/ipad-13/07-ai-skill-setup.png`
-  - `AppStoreAssets/ipad-13/08-ai-skill-match.png`
+- iPhone 6.9 英寸：`AppStoreAssets/iphone-6.9-promo/01-iphone.png` 至 `06-iphone.png`（1320 × 2868）
+- iPad 13 英寸：`AppStoreAssets/ipad-13-promo/01-ipad.png` 至 `06-ipad.png`（2064 × 2752）
+- 展示顺序：技能动效、高阶选技、技能图鉴、离线 AI、模式选择、本机双人
 
 ## App Privacy 建议
 

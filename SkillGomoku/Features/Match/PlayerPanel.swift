@@ -6,19 +6,22 @@ struct PlayerPanel: View {
     let state: GameState
     let selectedSkill: SkillIdentifier?
     let onSkillTap: ((SkillIdentifier) -> Void)?
+    var onSkillGuideTap: (() -> Void)? = nil
 
     init(
         player: MatchParticipant,
         side: PlayerSide,
         state: GameState,
         selectedSkill: SkillIdentifier? = nil,
-        onSkillTap: ((SkillIdentifier) -> Void)? = nil
+        onSkillTap: ((SkillIdentifier) -> Void)? = nil,
+        onSkillGuideTap: (() -> Void)? = nil
     ) {
         self.player = player
         self.side = side
         self.state = state
         self.selectedSkill = selectedSkill
         self.onSkillTap = onSkillTap
+        self.onSkillGuideTap = onSkillGuideTap
     }
 
     var body: some View {
@@ -40,7 +43,8 @@ struct PlayerPanel: View {
                     side: side,
                     selectedSkill: selectedSkill,
                     compact: false,
-                    onSkillTap: onSkillTap
+                    onSkillTap: onSkillTap,
+                    onSkillGuideTap: onSkillGuideTap
                 )
             }
 
@@ -107,6 +111,7 @@ struct PlayerDock: View {
     let state: GameState
     let selectedSkill: SkillIdentifier?
     let onSkillTap: ((SkillIdentifier) -> Void)?
+    var onSkillGuideTap: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: AppSpacing.sm) {
@@ -116,7 +121,8 @@ struct PlayerDock: View {
                 side: side,
                 selectedSkill: selectedSkill,
                 compact: true,
-                onSkillTap: onSkillTap
+                onSkillTap: onSkillTap,
+                onSkillGuideTap: onSkillGuideTap
             )
         }
         .padding(.horizontal, AppSpacing.sm)
@@ -235,7 +241,8 @@ struct PlayerSummaryCard: View {
             side: side,
             state: state,
             selectedSkill: nil,
-            onSkillTap: nil
+            onSkillTap: nil,
+            onSkillGuideTap: nil
         )
     }
 }
@@ -308,19 +315,22 @@ struct SkillReserveStrip: View {
     let selectedSkill: SkillIdentifier?
     let compact: Bool
     let onSkillTap: ((SkillIdentifier) -> Void)?
+    let onSkillGuideTap: (() -> Void)?
 
     init(
         state: GameState = .newClassic(firstPlayer: .playerOne),
         side: PlayerSide = .playerOne,
         selectedSkill: SkillIdentifier? = nil,
         compact: Bool = true,
-        onSkillTap: ((SkillIdentifier) -> Void)? = nil
+        onSkillTap: ((SkillIdentifier) -> Void)? = nil,
+        onSkillGuideTap: (() -> Void)? = nil
     ) {
         self.state = state
         self.side = side
         self.selectedSkill = selectedSkill
         self.compact = compact
         self.onSkillTap = onSkillTap
+        self.onSkillGuideTap = onSkillGuideTap
     }
 
     @ViewBuilder
@@ -332,9 +342,25 @@ struct SkillReserveStrip: View {
         } else if compact {
             LazyVGrid(columns: compactColumns, spacing: 6) {
                 skillCards
+                skillGuideButton
             }
         } else {
             VStack(spacing: AppSpacing.sm) {
+                if onSkillGuideTap != nil {
+                    HStack {
+                        Label("本局技能", systemImage: "square.stack.3d.up.fill")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(AppColor.textSecondary)
+                        Spacer()
+                        Button(action: showSkillGuide) {
+                            Label("查看说明", systemImage: "book.closed.fill")
+                                .font(.caption.bold())
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(AppColor.accent)
+                        .accessibilityIdentifier("skill-guide-\(side.rawValue)")
+                    }
+                }
                 skillCards
             }
         }
@@ -347,8 +373,50 @@ struct SkillReserveStrip: View {
     private var compactColumns: [GridItem] {
         Array(
             repeating: GridItem(.flexible(minimum: 44), spacing: 6),
-            count: max(skills.count, 1)
+            count: max(skills.count + (onSkillGuideTap == nil ? 0 : 1), 1)
         )
+    }
+
+    @ViewBuilder
+    private var skillGuideButton: some View {
+        if onSkillGuideTap != nil {
+            Button(action: showSkillGuide) {
+                VStack(spacing: 4) {
+                    Image(systemName: "book.closed.fill")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(AppColor.warning)
+                        .frame(width: 30, height: 30)
+                        .background(
+                            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                .fill(AppColor.warning.opacity(0.13))
+                        )
+                    Text("说明")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(AppColor.textPrimary)
+                    Text("查看")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(AppColor.warning)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 2)
+                .background(
+                    RoundedRectangle(cornerRadius: AppRadius.compact, style: .continuous)
+                        .fill(AppColor.warning.opacity(0.07))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppRadius.compact, style: .continuous)
+                        .stroke(AppColor.warning.opacity(0.32), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("查看技能说明")
+            .accessibilityIdentifier("skill-guide-\(side.rawValue)")
+        }
+    }
+
+    private func showSkillGuide() {
+        onSkillGuideTap?()
     }
 
     private var skillCards: some View {
@@ -534,6 +602,144 @@ private struct SkillCard: View {
         if !availability.isUsable { return availability.reason }
         if let remaining = skillState.remainingUses { return "剩余 \(remaining) 次" }
         return "可以使用"
+    }
+}
+
+struct SkillArtwork: View {
+    let skill: SkillIdentifier
+    var size: CGFloat = 58
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            skill.category.themeColor.opacity(0.38),
+                            skill.category.themeColor.opacity(0.12),
+                            AppColor.elevatedSurface
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+            Circle()
+                .trim(from: 0.10, to: 0.72)
+                .stroke(
+                    skill.category.themeColor.opacity(0.7),
+                    style: StrokeStyle(lineWidth: max(2, size * 0.055), lineCap: .round)
+                )
+                .frame(width: size * 0.70, height: size * 0.70)
+                .rotationEffect(.degrees(-34))
+            Image(systemName: skill.symbolName)
+                .font(.system(size: size * 0.34, weight: .bold))
+                .foregroundStyle(AppColor.textPrimary)
+                .shadow(color: skill.category.themeColor.opacity(0.55), radius: size * 0.09)
+        }
+        .frame(width: size, height: size)
+        .overlay(
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .stroke(skill.category.themeColor.opacity(0.46), lineWidth: 1)
+        )
+        .accessibilityHidden(true)
+    }
+}
+
+struct SkillGuideView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let skills: [SkillIdentifier]
+    var title = "技能说明"
+
+    var body: some View {
+        ZStack {
+            AppBackground()
+            ScrollView {
+                LazyVStack(spacing: AppSpacing.sm) {
+                    ForEach(skills) { skill in
+                        SkillGuideCard(skill: skill)
+                    }
+                }
+                .padding(.horizontal, AppSpacing.md)
+                .padding(.vertical, AppSpacing.sm)
+            }
+            .accessibilityIdentifier("skill-guide-list")
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("完成") { dismiss() }
+            }
+        }
+    }
+}
+
+private struct SkillGuideCard: View {
+    let skill: SkillIdentifier
+
+    var body: some View {
+        HStack(alignment: .top, spacing: AppSpacing.md) {
+            SkillArtwork(skill: skill)
+
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(skill.title)
+                        .font(.headline)
+                        .foregroundStyle(AppColor.textPrimary)
+                    Spacer(minLength: AppSpacing.sm)
+                    Text(skill.category.title)
+                        .font(.caption2.bold())
+                        .foregroundStyle(skill.category.themeColor)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(skill.category.themeColor.opacity(0.12)))
+                }
+
+                Text(skill.summary)
+                    .font(.subheadline)
+                    .foregroundStyle(AppColor.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: AppSpacing.sm) {
+                    Label(skill.statusLabel, systemImage: "clock.arrow.circlepath")
+                    Label(skill.targetDescription, systemImage: "scope")
+                }
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(AppColor.textSecondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.68)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(AppSpacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [skill.category.themeColor.opacity(0.10), AppColor.surface],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .stroke(skill.category.themeColor.opacity(0.24), lineWidth: 1)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(skill.title)，\(skill.category.title)，\(skill.summary)，\(skill.statusLabel)，\(skill.targetDescription)")
+    }
+}
+
+extension SkillIdentifier {
+    var targetDescription: String {
+        switch targetKind {
+        case .none: "无需选择目标"
+        case .coordinate: "选择棋盘位置"
+        case .move: "选择棋子与落点"
+        case .removedStone: "选择被移除棋子"
+        }
     }
 }
 

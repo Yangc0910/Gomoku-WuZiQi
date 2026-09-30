@@ -26,7 +26,7 @@ The files in `docs/reference/` are layout references only. Do not copy their vis
 
 ## Current Status
 
-Version 2.1 builds on the V2.0 offline AI release with clearer action feedback:
+Version 2.2 makes every skill easier to choose, understand, and follow:
 
 - New abstract skill-seal App Icon and matching in-app brand mark
 - Layered East Asian match atmosphere with ink mountains, water lines, wood grain, and accessible falling-leaf motion
@@ -38,6 +38,9 @@ Version 2.1 builds on the V2.0 offline AI release with clearer action feedback:
 - A deliberate AI thinking beat before every computer action
 - Clearer direct-selection cards, check states, and press feedback throughout pre-match setup
 - Android-aligned quick start: choose opponent and rules in place, then launch a default match from one prominent action
+- A dedicated advanced-mode loadout screen for both AI and local two-player matches, with nine illustrated choices and an exact three-skill limit
+- An in-match illustrated skill guide showing every equipped skill's effect, target, cooldown, and use limit
+- A professionally composed App Store screenshot set for 6.9-inch iPhone and 13-inch iPad displays
 
 The current app includes:
 

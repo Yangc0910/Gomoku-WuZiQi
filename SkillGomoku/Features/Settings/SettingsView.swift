@@ -31,7 +31,7 @@ struct SettingsView: View {
             }
 
             Section("版本") {
-                LabeledContent("当前版本", value: "2.1")
+                LabeledContent("当前版本", value: "2.2")
                 LabeledContent("可用模式", value: "经典 / 人机 / 技能 / 高阶技能")
             }
         }

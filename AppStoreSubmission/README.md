@@ -1,6 +1,6 @@
 # App Store Submission Pack
 
-This folder contains copy-ready App Store Connect material for the iOS 2.1 submission.
+This folder contains copy-ready App Store Connect material for the iOS 2.2 submission.
 
 ## Files
 
@@ -15,7 +15,7 @@ This folder contains copy-ready App Store Connect material for the iOS 2.1 submi
 - Publish `privacy-policy.zh-Hans.md` and `support.zh-Hans.md` to public HTTPS URLs.
 - Fill App Privacy as "No, we do not collect data from this app" if the shipped app remains offline-only and uses avatars only on device.
 - Upload a signed Release build through Xcode Organizer or `xcodebuild -exportArchive` after team signing is configured.
-- Review and upload the generated mode-selection, classic AI, skill-enabled AI, and skill-effect screenshots from `AppStoreAssets`.
+- Review and upload the six professionally composed screenshots in `AppStoreAssets/iphone-6.9-promo` and `AppStoreAssets/ipad-13-promo`.
 
 References:
 

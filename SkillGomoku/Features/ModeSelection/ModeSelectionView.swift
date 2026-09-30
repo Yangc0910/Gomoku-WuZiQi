@@ -186,36 +186,50 @@ struct ModeSelectionView: View {
         switch opponentCategory {
         case .computer:
             if let human = defaultHumanPlayer {
-                let state = GameState.newSinglePlayer(
-                    humanSide: .playerOne,
-                    difficulty: .medium,
-                    mode: selectedMode,
-                    skillLoadout: SkillIdentifier.defaultAdvancedLoadout,
-                    randomSeed: quickStartSeed
-                )
-                let opponent = state.computerOpponent ?? ComputerOpponent(side: .playerTwo, difficulty: .medium)
-                MatchView(
-                    playerOne: MatchParticipant(profile: human),
-                    playerTwo: .computer(opponent),
-                    existingMatch: nil,
-                    initialState: state
-                )
+                if selectedMode == .advancedSkills {
+                    AdvancedSkillSelectionView(
+                        opponentCategory: .computer,
+                        playerOne: human,
+                        playerTwo: nil
+                    )
+                } else {
+                    let state = GameState.newSinglePlayer(
+                        humanSide: .playerOne,
+                        difficulty: .medium,
+                        mode: selectedMode,
+                        randomSeed: quickStartSeed
+                    )
+                    let opponent = state.computerOpponent ?? ComputerOpponent(side: .playerTwo, difficulty: .medium)
+                    MatchView(
+                        playerOne: MatchParticipant(profile: human),
+                        playerTwo: .computer(opponent),
+                        existingMatch: nil,
+                        initialState: state
+                    )
+                }
             } else {
                 SinglePlayerSetupView(mode: selectedMode)
             }
         case .local:
             if let pair = defaultLocalPlayers {
-                MatchView(
-                    playerOne: MatchParticipant(profile: pair.0),
-                    playerTwo: MatchParticipant(profile: pair.1),
-                    existingMatch: nil,
-                    initialState: GameState.newMatch(
-                        mode: selectedMode,
-                        firstPlayer: .playerOne,
-                        skillLoadout: SkillIdentifier.defaultAdvancedLoadout,
-                        randomSeed: quickStartSeed
+                if selectedMode == .advancedSkills {
+                    AdvancedSkillSelectionView(
+                        opponentCategory: .local,
+                        playerOne: pair.0,
+                        playerTwo: pair.1
                     )
-                )
+                } else {
+                    MatchView(
+                        playerOne: MatchParticipant(profile: pair.0),
+                        playerTwo: MatchParticipant(profile: pair.1),
+                        existingMatch: nil,
+                        initialState: GameState.newMatch(
+                            mode: selectedMode,
+                            firstPlayer: .playerOne,
+                            randomSeed: quickStartSeed
+                        )
+                    )
+                }
             } else {
                 PlayerSelectionView(mode: selectedMode)
             }
@@ -305,5 +319,267 @@ private struct CompactModeCard: View {
             RoundedRectangle(cornerRadius: AppRadius.control, style: .continuous)
                 .stroke(isSelected ? mode.themeColor : AppColor.divider, lineWidth: isSelected ? 2 : 1)
         )
+    }
+}
+
+private struct AdvancedSkillSelectionView: View {
+    let opponentCategory: OpponentCategory
+    let playerOne: PlayerProfileEntity
+    let playerTwo: PlayerProfileEntity?
+
+    @State private var selectedSkills = Set(SkillIdentifier.defaultAdvancedLoadout)
+    @State private var selectionLimitNotice = false
+
+    var body: some View {
+        ZStack {
+            AppBackground()
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: AppSpacing.md) {
+                    header
+                    selectionStatus
+
+                    ForEach(SkillIdentifier.allCases) { skill in
+                        Button {
+                            toggle(skill)
+                        } label: {
+                            AdvancedSkillChoiceCard(
+                                skill: skill,
+                                isSelected: selectedSkills.contains(skill),
+                                selectionIsFull: selectedSkills.count == 3
+                            )
+                        }
+                        .buttonStyle(SetupChoiceButtonStyle())
+                        .accessibilityValue(selectedSkills.contains(skill) ? "已选择" : "未选择")
+                        .accessibilityIdentifier("advanced-skill-option-\(skill.rawValue)")
+                    }
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.top, AppSpacing.sm)
+                .padding(.bottom, 104)
+            }
+        }
+        .navigationTitle("选择高阶技能")
+        .navigationBarTitleDisplayMode(.inline)
+        .accessibilityIdentifier("advanced-skill-selection")
+        .safeAreaInset(edge: .bottom) {
+            startControl
+        }
+        .sensoryFeedback(.warning, trigger: selectionLimitNotice)
+    }
+
+    private var header: some View {
+        HStack(spacing: AppSpacing.md) {
+            ZStack {
+                RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                    .fill(GameMode.advancedSkills.themeColor.opacity(0.16))
+                Image(systemName: GameMode.advancedSkills.symbolName)
+                    .font(.title.bold())
+                    .foregroundStyle(GameMode.advancedSkills.themeColor)
+            }
+            .frame(width: 68, height: 68)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("组建技能流派")
+                    .font(.title2.bold())
+                    .foregroundStyle(AppColor.textPrimary)
+                Text(opponentCategory == .computer ? "选择三项技能，你与 AI 镜像使用" : "选择三项技能，双方镜像使用")
+                    .font(.subheadline)
+                    .foregroundStyle(AppColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var selectionStatus: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            HStack {
+                Text("本局技能")
+                    .font(.headline)
+                    .foregroundStyle(AppColor.textPrimary)
+                Spacer()
+                Text("已选择 \(selectedSkills.count) / 3")
+                    .font(.caption.bold())
+                    .foregroundStyle(selectedSkills.count == 3 ? AppColor.accent : AppColor.warning)
+            }
+
+            HStack(spacing: AppSpacing.sm) {
+                ForEach(0..<3, id: \.self) { index in
+                    let skill = selectedLoadout.indices.contains(index) ? selectedLoadout[index] : nil
+                    HStack(spacing: 6) {
+                        Image(systemName: skill?.symbolName ?? "plus")
+                        Text(skill?.title ?? "待选择")
+                            .lineLimit(1)
+                    }
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(skill == nil ? AppColor.textSecondary : (skill?.category.themeColor ?? AppColor.accent))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: AppRadius.compact, style: .continuous)
+                            .fill((skill?.category.themeColor ?? AppColor.textSecondary).opacity(skill == nil ? 0.05 : 0.12))
+                    )
+                }
+            }
+
+            Text(selectedSkills.count == 3 ? "已选满；要更换时先取消一项。" : "还可选择 \(3 - selectedSkills.count) 项。")
+                .font(.caption)
+                .foregroundStyle(selectionLimitNotice ? AppColor.warning : AppColor.textSecondary)
+                .contentTransition(.numericText())
+        }
+        .padding(AppSpacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .fill(AppColor.surface)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .stroke(GameMode.advancedSkills.themeColor.opacity(0.28), lineWidth: 1)
+        )
+    }
+
+    private var startControl: some View {
+        NavigationLink {
+            matchDestination
+        } label: {
+            HStack(spacing: AppSpacing.sm) {
+                Image(systemName: "play.fill")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(opponentCategory == .computer ? "使用这组技能挑战 AI" : "使用这组技能开始对局")
+                        .font(.headline)
+                    Text(selectedSkills.count == 3 ? selectedLoadout.map(\.title).joined(separator: "、") : "请选择三项技能")
+                        .font(.caption2)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
+                }
+                Spacer()
+                Image(systemName: "arrow.right")
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(HomeButtonStyle(color: GameMode.advancedSkills.themeColor))
+        .disabled(selectedSkills.count != 3)
+        .opacity(selectedSkills.count == 3 ? 1 : 0.5)
+        .accessibilityIdentifier("start-advanced-match")
+        .padding(.horizontal, AppSpacing.lg)
+        .padding(.vertical, AppSpacing.sm)
+        .background(.ultraThinMaterial)
+    }
+
+    private var selectedLoadout: [SkillIdentifier] {
+        SkillIdentifier.allCases.filter { selectedSkills.contains($0) }
+    }
+
+    @ViewBuilder
+    private var matchDestination: some View {
+        switch opponentCategory {
+        case .computer:
+            let state = GameState.newSinglePlayer(
+                humanSide: .playerOne,
+                difficulty: .medium,
+                mode: .advancedSkills,
+                skillLoadout: selectedLoadout,
+                randomSeed: matchSeed
+            )
+            let opponent = state.computerOpponent ?? ComputerOpponent(side: .playerTwo, difficulty: .medium)
+            MatchView(
+                playerOne: MatchParticipant(profile: playerOne),
+                playerTwo: .computer(opponent),
+                existingMatch: nil,
+                initialState: state
+            )
+        case .local:
+            if let playerTwo {
+                MatchView(
+                    playerOne: MatchParticipant(profile: playerOne),
+                    playerTwo: MatchParticipant(profile: playerTwo),
+                    existingMatch: nil,
+                    initialState: GameState.newMatch(
+                        mode: .advancedSkills,
+                        firstPlayer: .playerOne,
+                        skillLoadout: selectedLoadout,
+                        randomSeed: matchSeed
+                    )
+                )
+            }
+        }
+    }
+
+    private var matchSeed: UInt64 {
+        UInt64(Date().timeIntervalSince1970 * 1000)
+    }
+
+    private func toggle(_ skill: SkillIdentifier) {
+        withAnimation(.easeOut(duration: 0.18)) {
+            if selectedSkills.contains(skill) {
+                selectedSkills.remove(skill)
+                selectionLimitNotice = false
+            } else if selectedSkills.count < 3 {
+                selectedSkills.insert(skill)
+                selectionLimitNotice = false
+            } else {
+                selectionLimitNotice.toggle()
+            }
+        }
+    }
+}
+
+private struct AdvancedSkillChoiceCard: View {
+    let skill: SkillIdentifier
+    let isSelected: Bool
+    let selectionIsFull: Bool
+
+    var body: some View {
+        HStack(alignment: .top, spacing: AppSpacing.md) {
+            SkillArtwork(skill: skill, size: 62)
+
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(skill.title)
+                        .font(.headline)
+                        .foregroundStyle(AppColor.textPrimary)
+                    Text(skill.category.title)
+                        .font(.caption2.bold())
+                        .foregroundStyle(skill.category.themeColor)
+                    Spacer(minLength: AppSpacing.sm)
+                    SelectionStateBadge(isSelected: isSelected)
+                }
+
+                Text(skill.summary)
+                    .font(.subheadline)
+                    .foregroundStyle(AppColor.textPrimary.opacity(0.88))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: AppSpacing.sm) {
+                    Label(skill.statusLabel, systemImage: "clock.arrow.circlepath")
+                    Label(skill.targetDescription, systemImage: "scope")
+                }
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(AppColor.textSecondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.68)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(AppSpacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            skill.category.themeColor.opacity(isSelected ? 0.16 : 0.07),
+                            AppColor.surface
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .stroke(isSelected ? skill.category.themeColor : AppColor.divider, lineWidth: isSelected ? 2 : 1)
+        )
+        .opacity(selectionIsFull && !isSelected ? 0.78 : 1)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(skill.title)，\(skill.category.title)，\(skill.summary)，\(skill.statusLabel)，\(skill.targetDescription)")
     }
 }

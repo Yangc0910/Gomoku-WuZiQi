@@ -13,6 +13,7 @@ struct MatchView: View {
 
     @State private var viewModel: MatchViewModel?
     @State private var showingPause = false
+    @State private var showingSkillGuide = false
 
     init(
         playerOne: MatchParticipant,
@@ -108,6 +109,13 @@ struct MatchView: View {
                 )
             }
         }
+        .sheet(isPresented: $showingSkillGuide) {
+            NavigationStack {
+                SkillGuideView(skills: currentSkillGuide)
+            }
+            .preferredColorScheme(.dark)
+            .presentationDetents([.medium, .large])
+        }
         .task {
             makeViewModelIfNeeded()
         }
@@ -124,10 +132,12 @@ struct MatchView: View {
                 player: playerOne,
                 side: .playerOne,
                 state: viewModel.state,
-                selectedSkill: viewModel.selectedSkill
-            ) { skill in
-                viewModel.beginSkill(skill, side: .playerOne)
-            }
+                selectedSkill: viewModel.selectedSkill,
+                onSkillTap: { skill in
+                    viewModel.beginSkill(skill, side: .playerOne)
+                },
+                onSkillGuideTap: showSkillGuide
+            )
                 .frame(width: 232)
             VStack(spacing: AppSpacing.sm) {
                 TurnBanner(
@@ -154,10 +164,12 @@ struct MatchView: View {
                 player: playerTwo,
                 side: .playerTwo,
                 state: viewModel.state,
-                selectedSkill: viewModel.selectedSkill
-            ) { skill in
-                viewModel.beginSkill(skill, side: .playerTwo)
-            }
+                selectedSkill: viewModel.selectedSkill,
+                onSkillTap: { skill in
+                    viewModel.beginSkill(skill, side: .playerTwo)
+                },
+                onSkillGuideTap: showSkillGuide
+            )
                 .frame(width: 232)
         }
         .padding(AppSpacing.lg)
@@ -169,10 +181,12 @@ struct MatchView: View {
                 player: playerTwo,
                 side: .playerTwo,
                 state: viewModel.state,
-                selectedSkill: viewModel.selectedSkill
-            ) { skill in
-                viewModel.beginSkill(skill, side: .playerTwo)
-            }
+                selectedSkill: viewModel.selectedSkill,
+                onSkillTap: { skill in
+                    viewModel.beginSkill(skill, side: .playerTwo)
+                },
+                onSkillGuideTap: showSkillGuide
+            )
 
             TurnBanner(
                 state: viewModel.state,
@@ -203,7 +217,8 @@ struct MatchView: View {
                 selectedSkill: viewModel.selectedSkill,
                 onSkillTap: { skill in
                     viewModel.beginSkill(skill, side: .playerOne)
-                }
+                },
+                onSkillGuideTap: showSkillGuide
             )
         }
         .padding(.horizontal, AppSpacing.sm)
@@ -276,6 +291,16 @@ struct MatchView: View {
 
     private func participantName(for side: PlayerSide) -> String {
         side == .playerOne ? playerOne.displayName : playerTwo.displayName
+    }
+
+    private var currentSkillGuide: [SkillIdentifier] {
+        guard let state = viewModel?.state else { return [] }
+        let active = Set((state.skillStates[.playerOne] ?? []).map(\.id))
+        return SkillIdentifier.allCases.filter { active.contains($0) }
+    }
+
+    private func showSkillGuide() {
+        showingSkillGuide = true
     }
 
     private func makeViewModelIfNeeded() {

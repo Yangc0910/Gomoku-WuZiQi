@@ -85,6 +85,20 @@ final class SkillGomokuUITests: XCTestCase {
         app.buttons["quick-start-match"].tap()
 
         XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
+        let skillGuide = app.buttons["skill-guide-playerOne"]
+        XCTAssertTrue(skillGuide.waitForExistence(timeout: 5))
+        skillGuide.tap()
+        XCTAssertTrue(app.navigationBars["技能说明"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["飞沙走石"].exists)
+        XCTAssertTrue(app.staticTexts["移除对手一颗未受保护的棋子"].exists)
+
+        let guideScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        guideScreenshot.name = "Skill-guide-illustrated-list"
+        guideScreenshot.lifetime = .keepAlways
+        add(guideScreenshot)
+
+        app.buttons["完成"].tap()
+        XCTAssertTrue(app.staticTexts["第 1 回合"].waitForExistence(timeout: 5))
         tapBoard(app, row: 7, column: 7)
         XCTAssertTrue(app.staticTexts["第 2 回合"].waitForExistence(timeout: 5))
         tapBoard(app, row: 8, column: 8)
@@ -174,6 +188,69 @@ final class SkillGomokuUITests: XCTestCase {
         add(matchScreenshot)
     }
 
+    func testAdvancedAISelectsCustomLoadout() {
+        let app = launchApp()
+
+        app.buttons["开始游戏"].tap()
+        XCTAssertTrue(app.buttons["mode-computer-advancedSkills"].waitForExistence(timeout: 5))
+        app.buttons["mode-computer-advancedSkills"].tap()
+        app.buttons["quick-start-match"].tap()
+
+        XCTAssertTrue(app.navigationBars["选择高阶技能"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["组建技能流派"].exists)
+
+        let selectionScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        selectionScreenshot.name = "Advanced-skill-selection-AI"
+        selectionScreenshot.lifetime = .keepAlways
+        add(selectionScreenshot)
+
+        let swapStep = app.buttons["advanced-skill-option-swapStep"]
+        reveal(swapStep, in: app, direction: .up)
+        swapStep.tap()
+
+        let sandstorm = app.buttons["advanced-skill-option-sandstorm"]
+        reveal(sandstorm, in: app, direction: .down)
+        sandstorm.tap()
+
+        let start = app.buttons["start-advanced-match"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        XCTAssertTrue(start.isEnabled)
+        start.tap()
+
+        XCTAssertTrue(app.buttons["skill-playerOne-sandstorm"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["skill-playerTwo-sandstorm"].exists)
+        XCTAssertFalse(app.buttons["skill-playerOne-swapStep"].exists)
+    }
+
+    func testAdvancedLocalSelectsLoadoutBeforeMatch() {
+        let app = launchApp()
+
+        app.buttons["开始游戏"].tap()
+        XCTAssertTrue(app.buttons["本机双人"].waitForExistence(timeout: 5))
+        app.buttons["本机双人"].tap()
+        XCTAssertTrue(app.buttons["mode-local-advancedSkills"].waitForExistence(timeout: 5))
+        app.buttons["mode-local-advancedSkills"].tap()
+        app.buttons["quick-start-match"].tap()
+
+        XCTAssertTrue(app.navigationBars["选择高阶技能"].waitForExistence(timeout: 5))
+
+        let shield = app.buttons["advanced-skill-option-shield"]
+        reveal(shield, in: app, direction: .up)
+        shield.tap()
+
+        let cleanup = app.buttons["advanced-skill-option-cleanup"]
+        reveal(cleanup, in: app, direction: .down)
+        cleanup.tap()
+
+        let start = app.buttons["start-advanced-match"]
+        XCTAssertTrue(start.isEnabled)
+        start.tap()
+
+        XCTAssertTrue(app.buttons["skill-playerOne-cleanup"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["skill-playerTwo-cleanup"].exists)
+        XCTAssertFalse(app.buttons["skill-playerOne-shield"].exists)
+    }
+
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["UITEST_IN_MEMORY_STORE"] = "1"
@@ -190,5 +267,27 @@ final class SkillGomokuUITests: XCTestCase {
         let normalizedX = spacing / 2 + CGFloat(column) * spacing
         let normalizedY = spacing / 2 + CGFloat(row) * spacing
         board.coordinate(withNormalizedOffset: CGVector(dx: normalizedX, dy: normalizedY)).tap()
+    }
+
+    private enum RevealDirection {
+        case up
+        case down
+    }
+
+    private func reveal(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        direction: RevealDirection,
+        attempts: Int = 8
+    ) {
+        for _ in 0..<attempts where !element.isHittable {
+            switch direction {
+            case .up:
+                app.swipeUp()
+            case .down:
+                app.swipeDown()
+            }
+        }
+        XCTAssertTrue(element.isHittable, "目标控件应可滚动到可点击区域")
     }
 }

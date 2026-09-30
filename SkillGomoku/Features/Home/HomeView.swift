@@ -17,7 +17,7 @@ struct HomeView: View {
                     VStack(alignment: .leading, spacing: AppSpacing.lg) {
                         HStack(alignment: .center, spacing: AppSpacing.md) {
                             VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                                Text("VERSION 2.1")
+                                Text("VERSION 2.2")
                                     .font(.caption2.weight(.heavy))
                                     .tracking(1.5)
                                     .foregroundStyle(AppColor.accent)
